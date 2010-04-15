@@ -26,6 +26,9 @@ class BoardObject(object):
     def getPostion(self):
         return (self.x,self.y)
 
+    def getXML(self):
+        return "<" + self.__class__.__name__ + " x=\"" + str(self.x) + "\" y=\"" + str(self.y) + "\"></" + self.__class__.__name__ + ">"
+
 class Snowball(BoardObject):
     """ Represents a snowball object
 
@@ -39,6 +42,9 @@ class Snowball(BoardObject):
         self.direction = direction
         self.owner = owner
         super(Snowball,self).__init__(x,y)
+
+    def getXML(self):
+        return "<" + self.__class__.__name__ + " x=\"" + str(self.x) + "\" y=\"" + str(self.y) + "\" owner=\"" + self.owner + "\" direction=\"" + self.direction +"\"></" + self.__class__.__name__ + ">"
 
 class BoardObstacle(BoardObject):
     """ Simple obstacle for the board
@@ -84,3 +90,6 @@ class Player(BoardObject):
 
     def __str__(self):
         return self.name
+
+    def getXML(self):
+        return "<" + self.__class__.__name__ + " x=\"" + str(self.x) + "\" y=\"" + str(self.y) + "\" name=\"" + self.name + "\"></" + self.__class__.__name__ + ">"
