@@ -35,5 +35,55 @@ Players win by:
 
 from game_board import *
 
+SERVER = "blahblahblah"
+PORT = "blah"
+
 if __name__ == "__main__":
     print "main"
+
+class Client
+
+	xPos = 0
+	yPos = 0
+
+	obstacleList = []
+	
+	def connect() :
+	
+	def parse(String XML) :
+
+	def getMove(BoardObject board) :
+		objects = board.getArray()
+
+		currClosest = sys.maxint
+
+		for boardObject in objects :
+			if boardObject.__class__ is BoardObstacle 
+				&& !contains( obstacleList , lambda x : x == boardObject ) :
+				obstacleList.add( boardObject )
+			else if boardObject.__class__ is Player : 
+				if getDistance( boardObject.x , boardObject.y ) < currClosest :
+					closestPlayer = boardObject
+
+
+				
+			
+	def getDistance(x , y) :
+		return Math.sqrt( ( xPos - x ) ** 2 + ( yPos - y ) ** 2 )  
+
+	def getDirection(x , y) :
+		if xPos - x == 0 :
+			if  yPos - y == 0 : 
+				return 0 , 0
+			else return 0 , yPos - y / Math.abs( yPos - y )
+		else 
+			if yPos - y == 0 :
+				return xPos - x / Math.abs( xPos - x ) , 0
+			else return xPos - x / Math.abs( xPos - x ) , yPos - y / Math.abs( yPos - y )
+
+	def contains(list , filter)
+		for x in list : 
+			if filter(x) : 
+				return True
+		else return False
+		
