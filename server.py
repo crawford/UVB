@@ -48,63 +48,71 @@ class Server:
         self.backlog = 5
         self.size = 1024
         self.server = None
-        self.connections = []
+        self.players = []
         self.server_timeout = 5
-        self.start_waittime = 300
+        self.start_waittime = 10
 
     def open_server(self):
         try:
             self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.server.bind((self.host,self.port))
+            self.server.bind((self.host, self.port))
             self.server.listen(self.backlog)
-        except socker.error, (value,message):
+        except socker.error, (value, message):
             if self.server:
                 self.server.close()
             print "Could not open socket: " + message
             sys.exit(1)
 
-    def getconnections(self, waittime):
+    def get_players(self, waittime):
+        # set the start time
         starttime = datetime.datetime.now() + waittime
-        input = [self.server,sys.stdin]
-        running = 1
-        while running and starttime > datetime.datetime.now():
-            inputready,outputready,exceptready = select.select(input,[],[], self.server_timeout)
+        
+        input = [self.server]
+        running = True
+        
+        print "Listening for new players..."
+        while running:
+            inready, outpready, exready = select.select(input, [], [], self.server_timeout)
 
-            for s in inputready:
-                if s == self.server:
-                    # handle the server socket
-                    c = Connection(self.server.accept())
-                    c.start()
-                    self.connections.append(c)
-                elif s == sys.stdin:
-                    # handle standard input
-                    junk = sys.stdin.readline()
-                    running = 0
+            for s in inready:
+                # create a new connection to a client
+                p = Connection(self.server.accept())
+                p.start()
+                self.players.append(p)
                     
+                print " New player at ", p[1]
+
+            # if the current time has passed the start time, close the server
+            if datetime.datetime.now() > starttime:
+                running = False
+
         self.server.close()
+        print "Server closed -", len(self.players), " players"
 
     def run(self):
         self.open_server()
-        self.getconnections(self.start_waittime)
+        
+        # get connections and wait for the start of the game
+        self.get_players(datetime.timedelta(seconds=self.start_waittime))
 
-        for c in self.threads:
-            c.join()
+        for p in self.players:
+            p.join()
 
 class Connection(threading.Thread):
-    def __init__(self,(client,address)):
+    def __init__(self, (socket, address)):
         threading.Thread.__init__(self)
-        self.client = client
+        self.socket = socket
         self.address = address
         self.size = 1024
     
     def run(self):
         running = 1
         while running:
-            data = self.client.recv(self.size)
+            data = self.socket.recv(self.size)
             if data:
-                self.client.send(data)
+                self.socket.send(data)
             else:
-                self.client.close()
+                self.socket.close()
                 running = 0
 
 
@@ -113,5 +121,5 @@ if __name__ == "__main__":
     players = [Player(0,0,"P"), Player(0,0,"T")]
     board = GameBoard(5,10,players)
     print board.__str__()
-    s = Server
+    s = Server()
     s.run()
