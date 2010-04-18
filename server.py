@@ -42,28 +42,29 @@ import threading
 import datetime
 import ConfigParser
 
+maxgamelength = 1000
+maxdecisiontime = 5
+maxplayers = 20
+minvisibility = 5
+maxvisibility = 10
+        
 class Server:
     def __init__(self):
         self.host = socket.gethostname()
-        self.port = 41294
-        self.backlog = 5
+        self.connection_backlog = 5
         self.size = 1024
         self.server = None
         self.players = []
         self.server_timeout = 5
         self.start_waittime = 10
-        
-        self.maxgamelength = 1000
-        self.maxdecisiontime = 5000
-        self.maxplayers = 20
-        self.minvisibility = 5
-        self.maxvisibility = 10
+
+        self.gameboard = GameBoard()
 
     def open_server(self):
         try:
             self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server.bind((self.host, self.port))
-            self.server.listen(self.backlog)
+            self.server.listen(self.connection_backlog)
         except socker.error, (value, message):
             if self.server:
                 self.server.close()
@@ -101,17 +102,17 @@ class Server:
         config = ConfigParser.ConfigParser()
         config.read("config")
 
-        self.maxgamelength = config.get("Server", "MaxGameLength")
-        self.maxdecisiontime = config.get("Server", "MaxDecisionTime")
-        self.maxplayers = config.get("Server", "MaxPlayers")
-        self.minvisibility = config.get("Server", "MinVisibility")
-        self.maxvisibility = config.get("Server", "MaxVisibility")
+        maxgamelength = config.get("Server", "MaxGameLength")
+        maxdecisiontime = (config.get("Server", "MaxDecisionTime"))/1000
+        maxplayers = config.get("Server", "MaxPlayers")
+        minvisibility = config.get("Server", "MinVisibility")
+        maxvisibility = config.get("Server", "MaxVisibility")
         
-        print " Max Game Length:", self.maxgamelength
-        print " Max Decision Time:", self.maxdecisiontime
-        print " Max Players:", self.maxplayers
-        print " Min Visibility:", self.minvisibility
-        print " Max Visibility:", self.maxvisibility
+        print " Max Game Length:", maxgamelength
+        print " Max Decision Time:", maxdecisiontime
+        print " Max Players:", maxplayers
+        print " Min Visibility:", minvisibility
+        print " Max Visibility:", maxvisibility
 
     def run(self):
         self.load_config()
@@ -120,8 +121,27 @@ class Server:
         # get connections and wait for the start of the game
         self.get_players(datetime.timedelta(seconds=self.start_waittime))
 
+        gamecount = 0
+
+        # loop while the game hasn't run too long and there are still players
+        while (gamecount < maxgamelength) and (len(self.players) > 1):
+            # loop through all of the active players
+                # create a derived gameboard for the specific player
+                # send the gameboard to the player and ask for a move
+                
+            # apply all of the moves to the gameboard
+                # if they moved, update their position on the map
+                # if they made a snowball, increment their count
+                # if they made a snowman, place a snowman on the map
+                # if they threw a snowball, create a snowball in the direction on the map
+            # check for any collisions between players and objects
+                # if the player is in the same spot as another object, kill them
+
         for p in self.players:
             p.join()
+
+
+
 
 class Connection(threading.Thread):
     def __init__(self, (socket, address)):
@@ -129,22 +149,47 @@ class Connection(threading.Thread):
         self.socket = socket
         self.address = address
         self.size = 1024
+        self.operation
     
     def run(self):
-        running = 1
+        """running = True
         while running:
             data = self.socket.recv(self.size)
             if data:
                 self.socket.send(data)
             else:
                 self.socket.close()
-                running = 0
+                running = False
+        """
+        
+        input = [self.socket]
+        inready, outpready, exready = select.select(input, [], [], self.timeout)
+            
+        if len(inready) > 0:
+            print "Received move from player at", self.address
+        else:
+            print "No response from player at", self.address
+
+    def requestMove(self, map, timeout):
+        print "Sending map to player at", self.address
+        #send map
+        self.timeout = timeout
+        start()
+        
+        
 
 
-if __name__ == "__main__":
-    print "main"
-    players = [Player(0,0,"P"), Player(0,0,"T")]
-    board = GameBoard(5,10,players)
-    print board.__str__()
+
+
+if __name__ == "__main__":    
+    print "Welcome to"
+    print " _   _   _     _   _____        _____   __   _   _____   _          __  _____       ___   _       _"
+    print "| | | | | |   / / |  _  \      /  ___/ |  \ | | /  _  \ | |        / / |  _  \     /   | | |     | |"
+    print "| | | | | |  / /  | |_| |      | |___  |   \| | | | | | | |  __   / /  | |_| |    / /| | | |     | |"
+    print "| | | | | | / /   |  _  {      \___  \ | |\   | | | | | | | /  | / /   |  _  {   / / | | | |     | |"
+    print "| |_| | | |/ /    | |_| |       ___| | | | \  | | |_| | | |/   |/ /    | |_| |  / /  | | | |___  | |___"
+    print "\_____/ |___/     |_____/      /_____/ |_|  \_| \_____/ |___/|___/     |_____/ /_/   |_| |_____| |_____|"
+    print ""
+    
     s = Server()
     s.run()
