@@ -76,8 +76,9 @@ class Player(BoardObject):
         snowballs - number of snowballs the player has
     """
 
-    def __init__(self, x, y, name):
-        self.snowballs = 3
+    def __init__(self, x, y, name, snowballs=None):
+        if(snowballs==None):
+            self.snowballs = 0
         self.name = name
         super(Player,self).__init__(x,y)
 
