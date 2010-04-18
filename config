@@ -9,7 +9,7 @@ MaxDecisionTime: 3000
 MaxPlayers: 100
 
 #Minimum value for the player's visibility
-MinVisibility: 5
+MinVisibility: 3
 
 #Maximum value for the player's visibility
-MaxVisibility: 20
+MaxVisibility: 30

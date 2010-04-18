@@ -40,6 +40,7 @@ import socket
 import sys
 import threading
 import datetime
+import ConfigParser
 
 class Server:
     def __init__(self):
@@ -51,6 +52,12 @@ class Server:
         self.players = []
         self.server_timeout = 5
         self.start_waittime = 10
+        
+        self.maxgamelength = 1000
+        self.maxdecisiontime = 5000
+        self.maxplayers = 20
+        self.minvisibility = 5
+        self.maxvisibility = 10
 
     def open_server(self):
         try:
@@ -89,7 +96,25 @@ class Server:
         self.server.close()
         print "Server closed -", len(self.players), " players"
 
+    def load_config(self):
+        print "Loading configuration..."
+        config = ConfigParser.ConfigParser()
+        config.read("config")
+
+        self.maxgamelength = config.get("Server", "MaxGameLength")
+        self.maxdecisiontime = config.get("Server", "MaxDecisionTime")
+        self.maxplayers = config.get("Server", "MaxPlayers")
+        self.minvisibility = config.get("Server", "MinVisibility")
+        self.maxvisibility = config.get("Server", "MaxVisibility")
+        
+        print " Max Game Length:", self.maxgamelength
+        print " Max Decision Time:", self.maxdecisiontime
+        print " Max Players:", self.maxplayers
+        print " Min Visibility:", self.minvisibility
+        print " Max Visibility:", self.maxvisibility
+
     def run(self):
+        self.load_config()
         self.open_server()
         
         # get connections and wait for the start of the game
