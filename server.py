@@ -47,10 +47,13 @@ maxdecisiontime = 5
 maxplayers = 20
 minvisibility = 5
 maxvisibility = 10
-        
+gameheight = 50
+gamewidth = 50
+
 class Server:
     def __init__(self):
         self.host = socket.gethostname()
+        self.port = 41294
         self.connection_backlog = 5
         self.size = 1024
         self.server = None
@@ -58,14 +61,14 @@ class Server:
         self.server_timeout = 5
         self.start_waittime = 10
 
-        self.gameboard = GameBoard()
+        self.gameboard = None
 
     def open_server(self):
         try:
             self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server.bind((self.host, self.port))
             self.server.listen(self.connection_backlog)
-        except socker.error, (value, message):
+        except socket.error, (value, message):
             if self.server:
                 self.server.close()
             print "Could not open socket: " + message
@@ -78,7 +81,7 @@ class Server:
         input = [self.server]
         running = True
         
-        print "Listening for new players..."
+        print "Waiting for new players..."
         while running:
             inready, outpready, exready = select.select(input, [], [], self.server_timeout)
 
@@ -102,17 +105,23 @@ class Server:
         config = ConfigParser.ConfigParser()
         config.read("config")
 
-        maxgamelength = config.get("Server", "MaxGameLength")
-        maxdecisiontime = (config.get("Server", "MaxDecisionTime"))/1000
-        maxplayers = config.get("Server", "MaxPlayers")
-        minvisibility = config.get("Server", "MinVisibility")
-        maxvisibility = config.get("Server", "MaxVisibility")
-        
+        maxgamelength = int(config.get("Server", "MaxGameLength"))
+        maxdecisiontime = int(config.get("Server", "MaxDecisionTime"))/1000
+        maxplayers = int(config.get("Server", "MaxPlayers"))
+        minvisibility = int(config.get("Server", "MinVisibility"))
+        maxvisibility = int(config.get("Server", "MaxVisibility"))
+        gamewidth = int(config.get("Server", "GameWidth"))
+        gameheight = int(config.get("Server", "GameHeight"))
+
         print " Max Game Length:", maxgamelength
         print " Max Decision Time:", maxdecisiontime
         print " Max Players:", maxplayers
         print " Min Visibility:", minvisibility
         print " Max Visibility:", maxvisibility
+        print " Game Height:", gameheight
+        print " Game Width:", gamewidth
+        
+        self.gameboard = GameBoard(gamewidth, gameheight)
 
     def run(self):
         self.load_config()
@@ -121,6 +130,7 @@ class Server:
         # get connections and wait for the start of the game
         self.get_players(datetime.timedelta(seconds=self.start_waittime))
 
+        print "Starting game..."
         gamecount = 0
 
         # loop while the game hasn't run too long and there are still players
@@ -136,9 +146,11 @@ class Server:
                 # if they threw a snowball, create a snowball in the direction on the map
             # check for any collisions between players and objects
                 # if the player is in the same spot as another object, kill them
+            pass
+            #for p in self.players:
+            #    p.join()
 
-        for p in self.players:
-            p.join()
+        print "Game finished, exiting..."
 
 
 
@@ -181,14 +193,13 @@ class Connection(threading.Thread):
 
 
 
-if __name__ == "__main__":    
-    print "Welcome to"
-    print " _   _   _     _   _____        _____   __   _   _____   _          __  _____       ___   _       _"
-    print "| | | | | |   / / |  _  \      /  ___/ |  \ | | /  _  \ | |        / / |  _  \     /   | | |     | |"
-    print "| | | | | |  / /  | |_| |      | |___  |   \| | | | | | | |  __   / /  | |_| |    / /| | | |     | |"
-    print "| | | | | | / /   |  _  {      \___  \ | |\   | | | | | | | /  | / /   |  _  {   / / | | | |     | |"
-    print "| |_| | | |/ /    | |_| |       ___| | | | \  | | |_| | | |/   |/ /    | |_| |  / /  | | | |___  | |___"
-    print "\_____/ |___/     |_____/      /_____/ |_|  \_| \_____/ |___/|___/     |_____/ /_/   |_| |_____| |_____|"
+if __name__ == "__main__":
+    print " _     _ _     _ ______      ______                   _           _ _  "
+    print "| |   | | |   | |  __  \    / _____)                 | |         | | | "
+    print "| |   | | |   | | |__)  )  ( (____  ____   ___  _ _ _| |__  _____| | | "
+    print "| |   | | |   | |  __  (    \____ \|  _ \ / _ \| | | |  _ \(____ | | | "
+    print "| |___| |\ \ / /| |__)  )   _____) ) | | | |_| | | | | |_) ) ___ | | | "
+    print " \_____/  \___/ |______/   (______/|_| |_|\___/ \___/|____/\_____|\_)_)"
     print ""
     
     s = Server()
