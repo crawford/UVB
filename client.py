@@ -68,29 +68,33 @@ class Client
 		
 		direction = getDirection( closestPlayer.x , closestPlayer.y )
  
-		directionSum = direction[0] + direction[1]
-
-		if directionSum == direction[0] :
-			possibleMoves.add( direction[0] , direction[1] )
-			possibleMoves.add( direction[0] , 1 )
-			possibleMoves.add( direction[0] ,  - 1 )
-		else if directionSum == direction[1] :
-			possibleMoves.add( direction[0] , direction[1] )
-			possibleMoves.add( 1 , direction[1] )
-			possibleMoves.add( -1 , direction[1] )
+ 		if x + direction[0] == currClosest.x 
+			&& y + direction[1] == currClosest.y :
+			move = direction
 		else
-			possibleMoves.add( direction[0] , direction[1] )
-			possibleMoves.add( direction[0] , 0 )
-			possibleMoves.add( 0 , direction[1] )
+			directionSum = direction[0] + direction[1]
 
-		for move in possibleMoves : 
-			if !contains( obstacleList , lambda x : x == move ) :
-				possibleMoves.remove( move )
+			if directionSum == direction[0] :
+				possibleMoves.add( direction[0] , direction[1] )
+				possibleMoves.add( direction[0] , 1 )
+				possibleMoves.add( direction[0] ,  - 1 )
+			else if directionSum == direction[1] :
+				possibleMoves.add( direction[0] , direction[1] )
+				possibleMoves.add( 1 , direction[1] )
+				possibleMoves.add( -1 , direction[1] )
+			else
+				possibleMoves.add( direction[0] , direction[1] )
+				possibleMoves.add( direction[0] , 0 )
+				possibleMoves.add( 0 , direction[1] )
+
+			for move in possibleMoves : 
+				if !contains( obstacleList , lambda x : x == move ) :
+					possibleMoves.remove( move )
 		
-		move = choice( possibleMoves )
+			move = choice( possibleMoves )
 
-		x = move[0]
-		y = move[1]
+		x += move[0]
+		y += move[1]
 
 		return (x , y) 
 				
