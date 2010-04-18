@@ -1,0 +1,15 @@
+[Server]
+#Maximum number of game iterations
+MaxGameLength: 10000
+
+#Maximum amount of time for the player's decision (milliseconds)
+MaxDecisionTime: 3000
+
+#Maximum number of players in a single game
+MaxPlayers: 100
+
+#Minimum value for the player's visibility
+MinVisibility: 5
+
+#Maximum value for the player's visibility
+MaxVisibility: 20
