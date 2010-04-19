@@ -13,3 +13,9 @@ MinVisibility: 3
 
 #Maximum value for the player's visibility
 MaxVisibility: 30
+
+#The width of the gameboard
+GameWidth: 100
+
+#The height of the gameboard
+GameHeight: 75
