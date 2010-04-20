@@ -1,12 +1,28 @@
 [Server]
-#Maximum number of game iterations
-MaxGameLength: 10000
-
-#Maximum amount of time for the player's decision (milliseconds)
-MaxDecisionTime: 3000
-
 #Maximum number of players in a single game
 MaxPlayers: 100
+
+#The server port
+Port: 41294
+
+#The number of possible backlogged connections
+Backlog: 5
+
+
+[GameBoard]
+#Maximum number of game iterations
+MaxLength: 10000
+
+#The width of the gameboard
+Width: 100
+
+#The height of the gameboard
+Height: 75
+
+
+[Player]
+#Maximum amount of time for the player's decision (milliseconds)
+MaxDecisionTime: 3000
 
 #Minimum value for the player's visibility
 MinVisibility: 3
@@ -14,8 +30,11 @@ MinVisibility: 3
 #Maximum value for the player's visibility
 MaxVisibility: 30
 
-#The width of the gameboard
-GameWidth: 100
+[Snowball]
+#The speed of the snowball
+Speed: 2
 
-#The height of the gameboard
-GameHeight: 75
+
+[Snowman]
+#How many hits from a snowball it takes to destroy
+Strength: 1

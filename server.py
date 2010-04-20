@@ -101,30 +101,20 @@ class Server:
         print "Server closed -", len(self.players), " players"
 
     def load_config(self):
-        print "Loading configuration..."
+        print "Loading server configuration..."
         config = ConfigParser.ConfigParser()
         config.read("config")
 
-        maxgamelength = int(config.get("Server", "MaxGameLength"))
         maxdecisiontime = int(config.get("Server", "MaxDecisionTime"))/1000
         maxplayers = int(config.get("Server", "MaxPlayers"))
-        minvisibility = int(config.get("Server", "MinVisibility"))
-        maxvisibility = int(config.get("Server", "MaxVisibility"))
-        gamewidth = int(config.get("Server", "GameWidth"))
-        gameheight = int(config.get("Server", "GameHeight"))
 
-        print " Max Game Length:", maxgamelength
         print " Max Decision Time:", maxdecisiontime
         print " Max Players:", maxplayers
-        print " Min Visibility:", minvisibility
-        print " Max Visibility:", maxvisibility
-        print " Game Height:", gameheight
-        print " Game Width:", gamewidth
         
         self.gameboard = GameBoard(gamewidth, gameheight)
 
     def run(self):
-        self.load_config()
+        #self.load_config()
         self.open_server()
         
         # get connections and wait for the start of the game
