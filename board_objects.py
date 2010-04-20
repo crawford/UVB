@@ -72,6 +72,7 @@ class Player(BoardObject):
     Attributes:
         x - current x position
         y - current y position
+
         name - player name
         snowballs - number of snowballs the player has
     """

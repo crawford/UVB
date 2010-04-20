@@ -7,64 +7,100 @@ class GameBoard(object):
     """ GameBoard object for UVB-AI
 
     Attributes:
-        width - width of the board
+        width  - width of the board
         height - height of the board
-        board - actual game board
 
-        players - list of players
-        activePlayers - list of players still alive
+        players   - list of players
+        snowballs - list of moving snowballs
+        board     - actual game board
 
     Methods:
-        update - update (advance) the game board
-        getXML - return XML represenation of the game board
+        addObject       - adds and object to the board
+        removeObject    - remove an object from the board
+        moveObject      - moves an object
+
+        getVisibleBoard - returns a new board given a (x,y) coordinate and radius
+        getXML          - returns XML represenation of the game board
+        __str__         - returns string represenation of the game board
     """
+
+# dictionary of players
+# list of snowballs
+# "game board" 2d list
+# createMaskVisibleBoard(self,x,y,radius)
+#
+#
+# gameController - moves people, updates board, etc.
+# - isGameOver
+# - step (advance game)
+#   snowball speed configuration
 
     def __init__(self, width, height, players=None):
         self.width = width
         self.height = height
-        if(players == None):
-            self.players = []
-            self.activePlayers = []
-        else:
-            self.players = players
-            self.activePlayers = players
-        self.board = []
+        self.players = {}
+        self.snowballs = []
+        self.board = [[] for i in range(width)]
 
-        for y in range(height):
-            self.board.append([])
-            for x in range(width):
-                self.board[y].append(BoardObject(x,y));
-        if(players != None):
-            for p in players:
-                placed = False
-                while not placed:
-                    x = random.randrange(0,width)
-                    y = random.randrange(0,height)
-                    if( self.board[y][x].__class__ is not BoardObject):
-                        continue
-                    placed = True
-                    self.board[y][x].delete
-                    print "x: " + str(x) + " y: " + str(y)
-                    p.move(x,y)
-                    self.board[y][x] = p
+    # get object at (x,y) coordinate
+    def getObject(self,x,y):
+        if( len(self.board[x]) == 0 ):
+            return False
+        for i in range( len(self.board[x]) ):
+            if(i.y == y):
+                return i
+            elif(i.y > y):
+                return False
 
     # add an object to the game board
     def addObject(self,boardObject):
-        if(self.board[boardObject.y][boardObject.x].__class__ is not BoardObject):
-            raise IllegalPostion(x,y)
-        else:
-            self.board[boardObject.y][boardObject.x] = boardObject
-            # If it's a player, add player to the player lists
-            if(boardObject.__class__ is Player):
-                self.players.append(boardObject)
-                self.activePlayers.append(boardObject)
+        cur = getObject(boardObject.x,boardObject.y)
+        if( cur != False):
+            # return false if there's already something there
+            return False
+        else: 
+            # check if snowball or player
+            if(boardObject.__class__ is Snowball):
+                # add to snowball list
+                self.snowballs.append(boardObject)
+            elif(boardObject.__class__ is Player):
+                # add to player dictionary
+                self.players[boardObject.ID] = boardObject
+
+            # add to the actual game board
+            if( len(self.board[boardObject.x] == 0) ): 
+                # append if list is empty
+                self.board[boardObject.x].append(boardObject);
+            else:
+                inserted = False
+                for i, value in enumerate(self.board[x]):
+                    if(i > y):
+                        inserted = True
+                        self.board[boardObject.x].insert(i,boardObject)
+                        break
+                if(not inserted):
+                    self.board[boardObject.x].append(boardObject)
 
     # remove an object from the game board
     def removeObject(self,boardObject):
-        pass
+        # check if snowball or player
+        if(boardObject.__class__ is Snowball):
+            # remove from snowball list
+            self.snowballs.remove(boardObject)
+        elif(boardObject.__class__ is Player):
+            # remove from player dictionary
+            del self.players[boardObject.ID]
+        self.board[boardObject.x].remove(boardObject)
 
-    # update the game board state
-    def update(self):
+    # move an object on the game board
+    def moveObject(self,boardObject,x,y):
+        #TODO: make this more efficient
+        self.removeObject(boardObject)
+        boardObject.x = x
+        boardObject.y = y
+        self.addObject(boardObject)
+
+    def getVisibleBoard(self,x,y,radius):
         pass
 
     # convert the game board to a string
@@ -86,10 +122,3 @@ class GameBoard(object):
                 strang += "\t" + self.board[i][j].getXML() + "\n"
         strang += "</board>"
         return strang
-
-# Class to represent an IllegalPosition Exception
-class IllegalPosition(Exception):
-    def __init__(self,value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
