@@ -3,16 +3,13 @@
 MaxPlayers: 100
 
 #The server port
-Port: 41294
+Port: 13783
 
 #The number of possible backlogged connections
 Backlog: 5
 
 
 [GameBoard]
-#Maximum number of game iterations
-MaxLength: 10000
-
 #The width of the gameboard
 Width: 100
 

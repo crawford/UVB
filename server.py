@@ -1,196 +1,135 @@
 #!/usr/bin/python
-# A very simple AI challenge game written by David Brenner for CSH (csh.rit.edu)
 
-"""
-It's a snowball fight! The rules are as follows.
-
-Each turn, a player can:
-    Do nothing
-    Move in a direction
-    Make a snowball
-    Throw a snowball in a direction
-    Build a snowman  in a direction
-
-Actions that require a direction can be done in the cardinal or intermediate 
-    directions (N, S, E, W, NE, NW, SW, SE).
-
-Invalid actions result in inaction. These include:
-    Moving somewhere where you can't move
-    Throwing a snowball when you don't have one
-
-Snowmen are stationary shields. They are destroyed by collision with a player
-    or snowball.
-
-When a player loses, the player is removed from the game.
-
-Players lose by:
-    Colliding into one another (both players lose)
-    Getting hit by a snowball
-
-Players win by:
-    Being the last in the game
-
-"""
-
-# Main module
-
-from game_board import *
+from controller import *
 import select
 import socket
 import sys
 import threading
-import datetime
 import ConfigParser
 
-maxgamelength = 1000
-maxdecisiontime = 5
-maxplayers = 20
-minvisibility = 5
-maxvisibility = 10
-gameheight = 50
-gamewidth = 50
+class Server(threading.Thread):
+	def __init__(self):
+		threading.Thread.__init__(self)
 
-class Server:
-    def __init__(self):
-        self.host = socket.gethostname()
-        self.port = 41294
-        self.connection_backlog = 5
-        self.size = 1024
-        self.server = None
-        self.players = []
-        self.server_timeout = 5
-        self.start_waittime = 10
+		self.host = socket.gethostname()
+		self.port = 13783
+		self.connection_backlog = 5
+		self.size = 1024
+		self.server = None
+		self.connections = []
+		self.server_timeout = 5
+		self.maxplayers = 100
+		self.controller = None
+		self.running = False
 
-        self.gameboard = None
+	def open_server(self):
+		try:
+			self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			self.server.bind((self.host, self.port))
+			self.server.listen(self.connection_backlog)
+		except socket.error, (value, message):
+			if self.server:
+				self.server.close()
+			print "Could not open socket: " + message
+			sys.exit(1)
 
-    def open_server(self):
-        try:
-            self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.server.bind((self.host, self.port))
-            self.server.listen(self.connection_backlog)
-        except socket.error, (value, message):
-            if self.server:
-                self.server.close()
-            print "Could not open socket: " + message
-            sys.exit(1)
+		print "Sever opened"
 
-    def get_players(self, waittime):
-        # set the start time
-        starttime = datetime.datetime.now() + waittime
-        
-        input = [self.server]
-        running = True
-        
-        print "Waiting for new players..."
-        while running:
-            inready, outpready, exready = select.select(input, [], [], self.server_timeout)
+	def load_config(self):
+		print "Loading server configuration..."
+		config = ConfigParser.ConfigParser()
+		config.read("config")
 
-            for s in inready:
-                # create a new connection to a client
-                p = Connection(self.server.accept())
-                p.start()
-                self.players.append(p)
-                    
-                print " New player at ", p[1]
+		self.maxplayers = int(config.get("Server", "MaxPlayers"))
+		self.port = int(config.get("Server", "Port"))
+		self.connection_backlog = int(config.get("Server", "Backlog"))
+		gamewidth = int(config.get("GameBoard", "Width"))
+		gameheight = int(config.get("GameBoard", "Height"))
 
-            # if the current time has passed the start time, close the server
-            if datetime.datetime.now() > starttime:
-                running = False
+		print " Port:", self.port
+		print " Connection Backlog:", self.connection_backlog
+		print " Max Players:", self.maxplayers
 
-        self.server.close()
-        print "Server closed -", len(self.players), " players"
+		self.controller = Controller()
 
-    def load_config(self):
-        print "Loading server configuration..."
-        config = ConfigParser.ConfigParser()
-        config.read("config")
+	def run(self):
+		input = [self.server]
+		self.running = True
 
-        maxdecisiontime = int(config.get("Server", "MaxDecisionTime"))/1000
-        maxplayers = int(config.get("Server", "MaxPlayers"))
+		while self.running:
+			inready, outpready, exready = select.select(input, [], [], self.server_timeout)
+			self.destroy_idle_connections()
 
-        print " Max Decision Time:", maxdecisiontime
-        print " Max Players:", maxplayers
-        
-        self.gameboard = GameBoard(gamewidth, gameheight)
+			for s in inready:
+				if len(self.connections) <= self.maxplayers:
+					# create a new connection to a client
+					p = Connection(self.server.accept(), self)
+					p.start()
+					self.connections.append(p)
 
-    def run(self):
-        #self.load_config()
-        self.open_server()
-        
-        # get connections and wait for the start of the game
-        self.get_players(datetime.timedelta(seconds=self.start_waittime))
+					print "New player at ", p[1]
+				else:
+					print "Player refused - too many players"
 
-        print "Starting game..."
-        gamecount = 0
+		self.server.close()
+		print "Server closed"
 
-        # loop while the game hasn't run too long and there are still players
-        while (gamecount < maxgamelength) and (len(self.players) > 1):
-            # loop through all of the active players
-                # create a derived gameboard for the specific player
-                # send the gameboard to the player and ask for a move
-                
-            # apply all of the moves to the gameboard
-                # if they moved, update their position on the map
-                # if they made a snowball, increment their count
-                # if they made a snowman, place a snowman on the map
-                # if they threw a snowball, create a snowball in the direction on the map
-            # check for any collisions between players and objects
-                # if the player is in the same spot as another object, kill them
-            pass
-            #for p in self.players:
-            #    p.join()
+	def close(self):
+		self.running = False
+		print "Waiting for server to close..."
 
-        print "Game finished, exiting..."
+	def destroy_idle_connections(self):
+		i = 0
+		while i < len(self.connections):
+			if not self.connections[i].is_alive:
+				self.connections[i].close()
+				self.connections.remove(i)
+			else:
+				i = i+1
 
 
 
 
-class Connection(threading.Thread):
-    def __init__(self, (socket, address)):
-        threading.Thread.__init__(self)
-        self.socket = socket
-        self.address = address
-        self.size = 1024
-        self.operation
-    
-    def run(self):
-        """running = True
-        while running:
-            data = self.socket.recv(self.size)
-            if data:
-                self.socket.send(data)
-            else:
-                self.socket.close()
-                running = False
-        """
-        
-        input = [self.socket]
-        inready, outpready, exready = select.select(input, [], [], self.timeout)
-            
-        if len(inready) > 0:
-            print "Received move from player at", self.address
-        else:
-            print "No response from player at", self.address
+def command_help():
+	for c in commands:
+		print "\t", c, "\t\t", commands[c][1]
 
-    def requestMove(self, map, timeout):
-        print "Sending map to player at", self.address
-        #send map
-        self.timeout = timeout
-        start()
-        
-        
+def command_quit():
+	global running
+	running = False
+	s.close()
 
+def command_players():
+	print len(s.connections), " player(s)"
 
+def command_unknown():
+	print "Unknown command.  Type 'help' for commands."
 
 
 if __name__ == "__main__":
-    print " _     _ _     _ ______      ______                   _           _ _  "
-    print "| |   | | |   | |  __  \    / _____)                 | |         | | | "
-    print "| |   | | |   | | |__)  )  ( (____  ____   ___  _ _ _| |__  _____| | | "
-    print "| |   | | |   | |  __  (    \____ \|  _ \ / _ \| | | |  _ \(____ | | | "
-    print "| |___| |\ \ / /| |__)  )   _____) ) | | | |_| | | | | |_) ) ___ | | | "
-    print " \_____/  \___/ |______/   (______/|_| |_|\___/ \___/|____/\_____|\_)_)"
-    print ""
-    
-    s = Server()
-    s.run()
+	print " _     _ _     _ ______      ______                   _           _ _  "
+	print "| |   | | |   | |  __  \    / _____)                 | |         | | | "
+	print "| |   | | |   | | |__)  )  ( (____  ____   ___  _ _ _| |__  _____| | | "
+	print "| |   | | |   | |  __  (    \____ \|  _ \ / _ \| | | |  _ \(____ | | | "
+	print "| |___| |\ \ / /| |__)  )   _____) ) | | | |_| | | | | |_) ) ___ | | | "
+	print " \_____/  \___/ |______/   (______/|_| |_|\___/ \___/|____/\_____|\_)_)"
+	print ""
+
+	s = Server()
+	s.load_config()
+	s.open_server()
+	s.start()
+
+	commands = {"help":(command_help, "Shows this message"),
+				"exit":(command_quit, "See 'quit'"),
+				"quit":(command_quit, "Shuts down the server, closes all connections, and terminates"),
+				"players":(command_players, "Show the number of connected players")}
+
+	running = True
+
+	while running:
+		choice = raw_input("uvb> ")
+		commands.get(choice, (command_unknown, 0))[0]()
+
+	s.join()
+	print "Terminating"
