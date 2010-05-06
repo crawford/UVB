@@ -1,11 +1,26 @@
 #!/usr/bin/python
 
 from controller import *
+from connection import *
 import select
 import socket
+import SocketServer
 import sys
 import threading
 import ConfigParser
+
+class TCPHandler(SocketServer.BaseRequestHandler):
+	def handle(self):
+		global s
+		if len(s.connections) <= s.maxplayers:
+			# create a new connection to a client
+			p = Connection(self.request)
+			p.start()
+			s.connections.append(p)
+			print " New connection from", self.request.getpeername()
+
+
+
 
 class Server(threading.Thread):
 	def __init__(self):
@@ -24,9 +39,7 @@ class Server(threading.Thread):
 
 	def open_server(self):
 		try:
-			self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			self.server.bind((self.host, self.port))
-			self.server.listen(self.connection_backlog)
+			self.server = SocketServer.TCPServer((self.host, self.port), TCPHandler)
 		except socket.error, (value, message):
 			if self.server:
 				self.server.close()
@@ -34,6 +47,13 @@ class Server(threading.Thread):
 			sys.exit(1)
 
 		print "Sever opened"
+
+	def run(self):
+		self.running = True
+		self.server.timeout = self.server_timeout
+		while self.running:
+			self.server.handle_request()
+			self.destroy_idle_connections()
 
 	def load_config(self):
 		print "Loading server configuration..."
@@ -52,28 +72,6 @@ class Server(threading.Thread):
 
 		self.controller = Controller()
 
-	def run(self):
-		input = [self.server]
-		self.running = True
-
-		while self.running:
-			inready, outpready, exready = select.select(input, [], [], self.server_timeout)
-			self.destroy_idle_connections()
-
-			for s in inready:
-				if len(self.connections) <= self.maxplayers:
-					# create a new connection to a client
-					p = Connection(self.server.accept(), self)
-					p.start()
-					self.connections.append(p)
-
-					print "New player at ", p[1]
-				else:
-					print "Player refused - too many players"
-
-		self.server.close()
-		print "Server closed"
-
 	def close(self):
 		self.running = False
 		print "Waiting for server to close..."
@@ -81,9 +79,9 @@ class Server(threading.Thread):
 	def destroy_idle_connections(self):
 		i = 0
 		while i < len(self.connections):
-			if not self.connections[i].is_alive:
+			if not self.connections[i].is_alive():
 				self.connections[i].close()
-				self.connections.remove(i)
+				del self.connections[i]
 			else:
 				i = i+1
 

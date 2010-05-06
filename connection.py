@@ -1,11 +1,12 @@
 #!/usr/bin/python
 
+import threading
+import select
+
 class Connection(threading.Thread):
-	def __init__(self, (socket, address), server):
+	def __init__(self, socket):
 		threading.Thread.__init__(self)
 		self.socket = socket
-		self.address = address
-		self.server = server
 		self.size = 1024
 		self.timeout = 5
 
@@ -25,3 +26,6 @@ class Connection(threading.Thread):
 		
 		#if inready:
 			#username = self.socket
+
+	def close(self):
+		self.socket.close()
