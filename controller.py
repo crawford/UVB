@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from game_board import *
+from logger import *
 import ConfigParser
 
 class Controller(object):
@@ -9,7 +10,7 @@ class Controller(object):
 		self.board = GameBoard(self.width, self.height)
 
 	def loadConfig(self, filename):
-		print "Loading game configuration..."
+		logger.info("Loading game configuration...")
 		config = ConfigParser.ConfigParser()
 		config.read(filename)
 
@@ -18,13 +19,15 @@ class Controller(object):
 		self.minvisibility = int(config.get("Player", "MinVisibility"))
 		self.maxvisibility = int(config.get("Player", "MaxVisibility"))
 
-		print " Min Visibility:", self.minvisibility
-		print " Max Visibility:", self.maxvisibility
-		print " Game Height:", self.height
-		print " Game Width:", self.width
+		logger.info("Min Visibility: " + str(self.minvisibility))
+		logger.info("Max Visibility: " + str(self.maxvisibility))
+		logger.info("Game Height: " + str(self.height))
+		logger.info("Game Width: " + str(self.width))
 
 
 
+
+logger = createLogger('Controller')
 
 """
 		# get connections and wait for the start of the game

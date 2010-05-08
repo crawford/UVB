@@ -2,12 +2,15 @@
 
 from controller import *
 from connection import *
+from logger import *
 import select
 import socket
 import SocketServer
 import sys
 import threading
 import ConfigParser
+
+PROMPT = "uvb> "
 
 class TCPHandler(SocketServer.BaseRequestHandler):
 	def handle(self):
@@ -17,7 +20,7 @@ class TCPHandler(SocketServer.BaseRequestHandler):
 			p = Connection(self.request)
 			p.start()
 			s.connections.append(p)
-			print " New connection from", self.request.getpeername()
+			logger.info("New connection from" + str(self.request.getpeername()))
 
 
 
@@ -43,12 +46,11 @@ class Server(threading.Thread):
 		except socket.error, (value, message):
 			if self.server:
 				self.server.close()
-			print "Could not open socket: " + message
+			logger.critical("Could not open socket: " + str(message))
 			sys.exit(1)
 
-		print "Sever opened"
-
 	def run(self):
+		logger.debug("Server started")
 		self.running = True
 		self.server.timeout = self.server_timeout
 		while self.running:
@@ -56,7 +58,7 @@ class Server(threading.Thread):
 			self.destroy_idle_connections()
 
 	def load_config(self):
-		print "Loading server configuration..."
+		logger.info("Loading server configuration...")
 		config = ConfigParser.ConfigParser()
 		config.read("config")
 
@@ -66,15 +68,15 @@ class Server(threading.Thread):
 		gamewidth = int(config.get("GameBoard", "Width"))
 		gameheight = int(config.get("GameBoard", "Height"))
 
-		print " Port:", self.port
-		print " Connection Backlog:", self.connection_backlog
-		print " Max Players:", self.maxplayers
+		logger.info("Port: " + str(self.port))
+		logger.info("Connection Backlog: " + str(self.connection_backlog))
+		logger.info("Max Players: " + str(self.maxplayers))
 
 		self.controller = Controller()
 
 	def close(self):
 		self.running = False
-		print "Waiting for server to close..."
+		logger.info("Waiting for server to close...")
 
 	def destroy_idle_connections(self):
 		i = 0
@@ -104,6 +106,9 @@ def command_unknown():
 	print "Unknown command.  Type 'help' for commands."
 
 
+logger = createLogger('Server')
+
+
 if __name__ == "__main__":
 	print " _     _ _     _ ______      ______                   _           _ _  "
 	print "| |   | | |   | |  __  \    / _____)                 | |         | | | "
@@ -126,8 +131,9 @@ if __name__ == "__main__":
 	running = True
 
 	while running:
-		choice = raw_input("uvb> ")
+		choice = raw_input(PROMPT)
 		commands.get(choice, (command_unknown, 0))[0]()
 
 	s.join()
-	print "Terminating"
+	logger.info("Terminating")
+	logger.debug("Server closed")
