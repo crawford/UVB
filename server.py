@@ -5,25 +5,11 @@ from connection import *
 from logger import *
 import select
 import socket
-import SocketServer
 import sys
 import threading
 import ConfigParser
 
 PROMPT = "uvb> "
-
-class TCPHandler(SocketServer.BaseRequestHandler):
-	def handle(self):
-		global s
-		if len(s.connections) <= s.maxplayers:
-			# create a new connection to a client
-			p = Connection(self.request)
-			p.start()
-			s.connections.append(p)
-			logger.info("New connection from" + str(self.request.getpeername()))
-
-
-
 
 class Server(threading.Thread):
 	def __init__(self):
@@ -42,7 +28,9 @@ class Server(threading.Thread):
 
 	def open_server(self):
 		try:
-			self.server = SocketServer.TCPServer((self.host, self.port), TCPHandler)
+			self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			#self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+			self.server.bind((self.host, self.port))
 		except socket.error, (value, message):
 			if self.server:
 				self.server.close()
@@ -52,9 +40,18 @@ class Server(threading.Thread):
 	def run(self):
 		logger.debug("Server started")
 		self.running = True
-		self.server.timeout = self.server_timeout
+		self.server.settimeout(self.server_timeout)
+		self.server.listen(1)
 		while self.running:
-			self.server.handle_request()
+			try:
+				socket, address = self.server.accept()
+				p = Connection(socket)
+				p.start()
+				s.connections.append(p)
+				logger.info("New connection from" + str(address))
+			except:
+				pass
+
 			self.destroy_idle_connections()
 
 	def load_config(self):
