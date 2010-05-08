@@ -3,6 +3,22 @@
 import logging
 import logging.handlers
 
+'''
+Instructions:
+	from logger import *
+
+	logger = createLogger('your module name')
+
+	logger.debug('message')
+	logger.info('message')
+	logger.warn('message')
+	logger.error('message')
+	logger.critical('message')
+
+	
+	The minimum logging levels for file logging and screen logging are below
+'''
+
 def createLogger(name):
 	LOG_FILENAME = 'uvb.log'
 	
