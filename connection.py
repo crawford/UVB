@@ -30,7 +30,7 @@ class Connection(threading.Thread):
 		inready, outready, exready = select.select([self.socket], [], [], self.timeout)
 	
 		if inready:
-			secret = self.socket.recv(32).strip()
+			secret = self.socket.recv(40)
 			self.logger.info("Received secret key: " + secret)
 			
 		self.logger.info("Disconnected")
