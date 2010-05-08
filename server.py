@@ -44,11 +44,12 @@ class Server(threading.Thread):
 		self.server.listen(1)
 		while self.running:
 			try:
-				socket, address = self.server.accept()
-				p = Connection(socket)
+				rsocket, address = self.server.accept()
+				hostname, aliases, iplist = socket.gethostbyaddr(address[0])
+				p = Connection(rsocket, hostname)
 				p.start()
 				s.connections.append(p)
-				logger.info("New connection from" + str(address))
+				logger.info("New connection from " + str(hostname))
 			except:
 				pass
 
