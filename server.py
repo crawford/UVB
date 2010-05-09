@@ -79,7 +79,7 @@ class Server(threading.Thread):
 	def destroy_idle_connections(self):
 		i = 0
 		while i < len(self.connections):
-			if not self.connections[i].is_alive():
+			if not self.connections[i].isAlive():
 				self.connections[i].close()
 				del self.connections[i]
 			else:
