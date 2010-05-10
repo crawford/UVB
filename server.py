@@ -29,28 +29,30 @@ class Server(threading.Thread):
 	def open_server(self):
 		try:
 			self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			#self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+			self.server = ssl.wrap_socket(self.server, 
+											keyfile='/etc/ssl/private/uvb_key.pem', 
+											certfile='/etc/ssl/certs/uvb_cert.pem', server_side=True)
 			self.server.bind((self.host, self.port))
 		except socket.error, (value, message):
+			logger.critical("Could not open socket: " + str(message))
 			if self.server:
 				self.server.close()
-			logger.critical("Could not open socket: " + str(message))
 			sys.exit(1)
 
 	def run(self):
 		logger.debug("Server started")
 		self.running = True
 		self.server.settimeout(self.server_timeout)
-		self.server.listen(1)
+		self.server.listen(self.connection_backlog)
 		while self.running:
 			try:
 				rsocket, address = self.server.accept()
 				hostname, aliases, iplist = socket.gethostbyaddr(address[0])
+				logger.info("New connection from " + str(hostname) + " " + str(rsocket.cipher()))
 				p = Connection(rsocket, hostname)
 				p.start()
 				s.connections.append(p)
-				logger.info("New connection from " + str(hostname))
-			except:
+			except socket.timeout:
 				pass
 
 			self.destroy_idle_connections()
@@ -81,6 +83,7 @@ class Server(threading.Thread):
 		while i < len(self.connections):
 			if not self.connections[i].isAlive():
 				self.connections[i].close()
+				logger.info("Removing idle connection to " + str(self.connections[i].hostname))
 				del self.connections[i]
 			else:
 				i = i+1
@@ -107,7 +110,7 @@ def command_unknown():
 logger = createLogger('Server')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	print " _     _ _     _ ______      ______                   _           _ _  "
 	print "| |   | | |   | |  __  \    / _____)                 | |         | | | "
 	print "| |   | | |   | | |__)  )  ( (____  ____   ___  _ _ _| |__  _____| | | "
@@ -121,10 +124,10 @@ if __name__ == "__main__":
 	s.open_server()
 	s.start()
 
-	commands = {"help":(command_help, "Shows this message"),
-				"exit":(command_quit, "See 'quit'"),
-				"quit":(command_quit, "Shuts down the server, closes all connections, and terminates"),
-				"players":(command_players, "Show the number of connected players")}
+	commands = {'help':(command_help, "Shows this message"),
+				'exit':(command_quit, "See 'quit'"),
+				'quit':(command_quit, "Shuts down the server, closes all connections, and terminates"),
+				'players':(command_players, "Show the number of connected players")}
 
 	running = True
 
