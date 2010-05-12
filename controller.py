@@ -1,16 +1,17 @@
 #!/usr/bin/python
 
-from game_board import *
 from logger import *
+from game_board import *
 import ConfigParser
 
 class Controller(object):
 	def __init__(self):
-		self.loadConfig("config")
+		self.logger = create_logger('Controller')
+		self.load_config("config")
 		self.board = GameBoard(self.width, self.height)
 
-	def loadConfig(self, filename):
-		logger.info("Loading game configuration...")
+	def load_config(self, filename):
+		self.logger.info("Loading game configuration...")
 		config = ConfigParser.ConfigParser()
 		config.read(filename)
 
@@ -19,15 +20,22 @@ class Controller(object):
 		self.minvisibility = int(config.get("Player", "MinVisibility"))
 		self.maxvisibility = int(config.get("Player", "MaxVisibility"))
 
-		logger.info("Min Visibility: " + str(self.minvisibility))
-		logger.info("Max Visibility: " + str(self.maxvisibility))
-		logger.info("Game Height: " + str(self.height))
-		logger.info("Game Width: " + str(self.width))
+		self.logger.info("Min Visibility: " + str(self.minvisibility))
+		self.logger.info("Max Visibility: " + str(self.maxvisibility))
+		self.logger.info("Game Height: " + str(self.height))
+		self.logger.info("Game Width: " + str(self.width))
+
+	def add_player(newPlayer):
+		#check to see if player already exists
+		for player in self.board.players:
+			if player.username == newPlayer.username:
+				raise Exception('Player', 'Already exists')
+
+		#add player to game
+		self.board.players.append(newPlayer)
 
 
 
-
-logger = createLogger('Controller')
 
 """
 		# get connections and wait for the start of the game

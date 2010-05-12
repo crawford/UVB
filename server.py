@@ -1,7 +1,8 @@
-#!/usr/bin/python
+#!/usr/local/bin/python
 
 from controller import *
 from connection import *
+from player import *
 from logger import *
 import select
 import socket
@@ -49,7 +50,7 @@ class Server(threading.Thread):
 				rsocket, address = self.server.accept()
 				hostname, aliases, iplist = socket.gethostbyaddr(address[0])
 				logger.info("New connection from " + str(hostname) + " " + str(rsocket.cipher()))
-				p = Connection(rsocket, hostname)
+				p = Connection(rsocket, hostname, self)
 				p.start()
 				s.connections.append(p)
 			except socket.timeout:
@@ -74,6 +75,15 @@ class Server(threading.Thread):
 
 		self.controller = Controller()
 
+	def create_player(self, username, connection):
+		logger.debug("Creating player: " + username)
+		player = Player(username, connection)
+		try:
+			self.controller.add_player(player)
+		except Exception:
+			#player is already in game
+			pass
+
 	def close(self):
 		self.running = False
 		logger.info("Waiting for server to close...")
@@ -81,7 +91,7 @@ class Server(threading.Thread):
 	def destroy_idle_connections(self):
 		i = 0
 		while i < len(self.connections):
-			if not self.connections[i].isAlive():
+			if not self.connections[i].running:
 				self.connections[i].close()
 				logger.info("Removing idle connection to " + str(self.connections[i].hostname))
 				del self.connections[i]
@@ -107,7 +117,7 @@ def command_unknown():
 	print "Unknown command.  Type 'help' for commands."
 
 
-logger = createLogger('Server')
+logger = create_logger('Server')
 
 
 if __name__ == '__main__':

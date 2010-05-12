@@ -19,8 +19,8 @@ Instructions:
 	The minimum logging levels for file logging and screen logging are below
 '''
 
-def createLogger(name):
-	LOG_FILENAME = 'uvb.log'
+def create_logger(name):
+	LOG_FILENAME = '/var/www/test/uvb.log'
 	
 	logger = logging.getLogger(name)
 	logger.setLevel(logging.DEBUG)

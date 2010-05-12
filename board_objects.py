@@ -66,7 +66,7 @@ class Snowman(BoardObstacle):
     def __str__(self):
         return "8"
 
-class Player(BoardObject):
+'''class Player(BoardObject):
     """ Represents the player on the game board
 
     Attributes:
@@ -95,3 +95,4 @@ class Player(BoardObject):
 
     def getXML(self):
         return "<" + self.__class__.__name__ + " x=\"" + str(self.x) + "\" y=\"" + str(self.y) + "\" name=\"" + self.name + "\"></" + self.__class__.__name__ + ">"
+'''
