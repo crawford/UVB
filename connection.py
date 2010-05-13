@@ -44,7 +44,7 @@ class Connection(threading.Thread):
 			self.logger.info("Received secret key from " + self.hostname + ": " + secret)
 			
 			username = self.redis.get("secret:" + secret)
-			if secret == 'nil':
+			if not username:
 				self.logger.info("Invalid key from " + self.hostname)
 				self.running = False
 				return
