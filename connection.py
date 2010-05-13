@@ -22,12 +22,16 @@ class Connection(threading.Thread):
 		self.running = True
 		self.operation = None
 		self.buffer = ""
+		self.readsize = 1024
 
 	def run(self):
 		if self.operation == AUTH:
 			self.socket.send('key')
-			inready, outready, exready = select.select([self.socket], [], [], self.timeout)
-			self.read_socket(40)
+
+			if not self.peek_buffer():
+				r, w, e = select.select([self.socket], [], [], self.timeout)
+				self.read_socket(self.readsize)
+
 			secret = self.read_buffer()
 		
 			if not secret:
@@ -54,27 +58,36 @@ class Connection(threading.Thread):
 		print "Checking"
 		if self.running == False:
 			return False
-
-		try:
-			self.read_socket(1)
-		except Exception as e:
-			print e
-			return False
-		return True
+		
+		self.read_socket(self.readsize)
+		return self.running
 
 	def read_socket(self, length):
-		r,w,e = select.select([self.socket], [], [], 0)
+		print "Attempting to read...",
+		r, w, e = select.select([self.socket], [], [], 0)
 		if r:
-			data = self.socket.recv(length)
-			if data:
-				self.buffer += data
-			else:
-				raise Exception('Socket', 'Disconnected')
+			try:
+				print "Ready"
+				data = self.socket.recv(length)
+				print "Read", data
+				
+				if data:
+					self.buffer += data
+				else:
+					self.running = False
+			except socket.error as error:
+				print error
+				self.running = False
+		else:
+			print "Not Ready"
 			
 	def read_buffer(self):
 		out = self.buffer
 		self.buffer = ""
 		return out
+
+	def peek_buffer(self):
+		return self.buffer
 
 	def close(self):
 		self.socket.close()
