@@ -26,22 +26,30 @@ class Server(threading.Thread):
 		self.maxplayers = 100
 		self.controller = None
 		self.running = False
+		self.logger = create_logger('Server')
 
 	def open_server(self):
 		try:
 			self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+			self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+			#self.server.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+			#self.server.setsockopt(socket.SOL_SOCKET, socket.TCP_KEEPCNT, 3)
+			#self.server.setsockopt(socket.SOL_SOCKET, socket.TCP_KEEPIDLE, 5)
+			#self.server.setsockopt(socket.SOL_SOCKET, socket.TCP_KEEPINTVL, 1)
+
 			self.server = ssl.wrap_socket(self.server, 
 											keyfile='/etc/ssl/private/uvb_key.pem', 
 											certfile='/etc/ssl/certs/uvb_cert.pem', server_side=True)
 			self.server.bind((self.host, self.port))
 		except socket.error, (value, message):
-			logger.critical("Could not open socket: " + str(message))
+			self.logger.critical("Could not open socket: " + str(message))
 			if self.server:
 				self.server.close()
 			sys.exit(1)
 
 	def run(self):
-		logger.debug("Server started")
+		self.logger.debug("Server started")
 		self.running = True
 		self.server.settimeout(self.server_timeout)
 		self.server.listen(self.connection_backlog)
@@ -49,9 +57,9 @@ class Server(threading.Thread):
 			try:
 				rsocket, address = self.server.accept()
 				hostname, aliases, iplist = socket.gethostbyaddr(address[0])
-				logger.info("New connection from " + str(hostname) + " " + str(rsocket.cipher()))
+				self.logger.info("New connection from " + str(hostname) + " " + str(rsocket.cipher()))
 				p = Connection(rsocket, hostname, self)
-				p.start()
+				p.authenticate()
 				s.connections.append(p)
 			except socket.timeout:
 				pass
@@ -59,7 +67,7 @@ class Server(threading.Thread):
 			self.destroy_idle_connections()
 
 	def load_config(self):
-		logger.info("Loading server configuration...")
+		self.logger.info("Loading server configuration...")
 		config = ConfigParser.ConfigParser()
 		config.read("config")
 
@@ -69,14 +77,14 @@ class Server(threading.Thread):
 		gamewidth = int(config.get("GameBoard", "Width"))
 		gameheight = int(config.get("GameBoard", "Height"))
 
-		logger.info("Port: " + str(self.port))
-		logger.info("Connection Backlog: " + str(self.connection_backlog))
-		logger.info("Max Players: " + str(self.maxplayers))
+		self.logger.info("Port: " + str(self.port))
+		self.logger.info("Connection Backlog: " + str(self.connection_backlog))
+		self.logger.info("Max Players: " + str(self.maxplayers))
 
 		self.controller = Controller()
 
 	def create_player(self, username, connection):
-		logger.debug("Creating player: " + username)
+		self.logger.debug("Creating player: " + username)
 		player = Player(username, connection)
 		try:
 			self.controller.add_player(player)
@@ -86,14 +94,14 @@ class Server(threading.Thread):
 
 	def close(self):
 		self.running = False
-		logger.info("Waiting for server to close...")
+		self.logger.info("Waiting for server to close...")
 
 	def destroy_idle_connections(self):
 		i = 0
 		while i < len(self.connections):
-			if not self.connections[i].running:
+			if not self.connections[i].is_running():
 				self.connections[i].close()
-				logger.info("Removing idle connection to " + str(self.connections[i].hostname))
+				self.logger.info("Removing idle connection to " + str(self.connections[i].hostname))
 				del self.connections[i]
 			else:
 				i = i+1
@@ -117,7 +125,6 @@ def command_unknown():
 	print "Unknown command.  Type 'help' for commands."
 
 
-logger = create_logger('Server')
 
 
 if __name__ == '__main__':
@@ -146,5 +153,5 @@ if __name__ == '__main__':
 		commands.get(choice, (command_unknown, 0))[0]()
 
 	s.join()
-	logger.info("Terminating")
-	logger.debug("Server closed")
+	s.logger.info("Terminating")
+	s.logger.debug("Server closed")
