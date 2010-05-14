@@ -85,12 +85,18 @@ class Server(threading.Thread):
 
 	def create_player(self, username, connection):
 		self.logger.debug("Creating player: " + username)
-		player = Player(username, connection)
-		try:
-			self.controller.add_player(player)
-		except Exception:
+		player = self.controller.get_player(username)
+		if player:
 			#player is already in game
-			pass
+			self.logger.info("Detected " + username + " cheating")
+			player.disconnect()
+			connection.close()
+			#flag this user as cheating
+			return
+
+		player = Player(username, connection)
+		self.controller.add_player(player)
+		connection.logger = player.logger
 
 	def close(self):
 		self.running = False

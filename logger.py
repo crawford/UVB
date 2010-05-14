@@ -34,6 +34,7 @@ def create_logger(name):
 
 	strHandler = logging.StreamHandler()
 	strHandler.setLevel(logging.INFO)
+	
 	logger.addHandler(strHandler)
 
 	return logger

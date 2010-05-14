@@ -41,7 +41,7 @@ class Connection(threading.Thread):
 				self.running = False
 				return
 
-			self.logger.info("Received secret key from " + self.hostname + ": " + secret)
+			self.logger.debug("Received secret key from " + self.hostname + ": " + secret)
 			
 			username = self.redis.get("secret:" + secret)
 			if not username:
@@ -50,7 +50,6 @@ class Connection(threading.Thread):
 				return
 
 			self.logger.info(self.hostname + " authenticated as " + username)
-			self.logger = create_logger(username)
 			self.server.create_player(username, self)
 		elif self.operation == GET_MOVE:
 			pass
@@ -95,4 +94,5 @@ class Connection(threading.Thread):
 		return self.buffer
 
 	def close(self):
+		self.running = False
 		self.socket.close()

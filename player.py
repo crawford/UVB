@@ -5,3 +5,7 @@ class Player(object):
 		self.username = username
 		self.connection = connection
 		self.logger = create_logger(username)
+
+	def disconnect(self):
+		self.logger.info("Disconnecting")
+		self.connection.close()
