@@ -38,7 +38,7 @@ class GameBoard(object):
     def __init__(self, width, height, players=None):
         self.width = width
         self.height = height
-        self.players = {}
+        self.players = []
         self.snowballs = []
         self.board = [[] for i in range(width)]
 
