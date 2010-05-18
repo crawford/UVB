@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
 from logger import *
+import db
 import threading
 import select
 import sys
 import ssl
 import socket
-import redis
 
 AUTH, GET_MOVE = range(2)
 
@@ -24,7 +24,6 @@ class Connection(threading.Thread):
 		self.operation = None
 		self.buffer = ""
 		self.readsize = 1024
-		self.redis = redis.Redis()
 
 	def run(self):
 		if self.operation == AUTH:
@@ -43,7 +42,7 @@ class Connection(threading.Thread):
 
 			self.logger.debug("Received secret key from " + self.hostname + ": " + secret)
 			
-			username = self.redis.get("secret:" + secret)
+			username = db.get_username(secret)
 			if not username:
 				self.logger.info("Invalid key from " + self.hostname)
 				self.running = False
