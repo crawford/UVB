@@ -9,3 +9,9 @@ class Player(object):
 	def disconnect(self):
 		self.logger.info("Disconnecting")
 		self.connection.close()
+
+	def request_move(self):
+		pass
+
+	def get_move(self):
+		pass

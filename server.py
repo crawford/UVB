@@ -53,6 +53,7 @@ class Server(threading.Thread):
 		self.running = True
 		self.server.settimeout(self.server_timeout)
 		self.server.listen(self.connection_backlog)
+
 		while self.running:
 			try:
 				rsocket, address = self.server.accept()
@@ -97,9 +98,12 @@ class Server(threading.Thread):
 		player = Player(username, connection)
 		self.controller.add_player(player)
 		connection.logger = player.logger
+		
+		self.controller.start()
 
 	def close(self):
 		self.running = False
+		self.controller.stop()
 		self.logger.info("Waiting for server to close...")
 
 	def destroy_idle_connections(self):
