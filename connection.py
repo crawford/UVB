@@ -57,6 +57,11 @@ class Connection(threading.Thread):
 		self.operation = AUTH
 		self.start()
 
+	def get_move(self, map):
+		self.socket.send(map)
+		self.operation = GET_MOVE
+		self.start()
+
 	def is_running(self):
 		print "Checking"
 		if self.running == False:

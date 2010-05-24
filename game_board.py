@@ -3,6 +3,8 @@
 import random
 from board_objects import *
 
+N, NE, E, SE, S, SW, W, NW, MOVE, SNOWBALL, SNOWMAN, STAY = range(12)
+
 class GameBoard(object):
 	""" GameBoard object for UVB-AI
 
@@ -101,6 +103,30 @@ class GameBoard(object):
 		boardObject.y = y
 		self.addObject(boardObject)
 
+	def nextPos(self,x,y,direction):
+		if direction == N:
+			y += 1
+		elif direction == NE:
+			y += 1
+			x += 1
+		elif direction == E:
+			x += 1
+		elif direction == SE:
+			y -= 1
+			x += 1
+		elif direction == S:
+			y -= 1
+		elif direction == SW:
+			y -= 1
+			x -= 1
+		elif direction == W:
+			x -= 1
+		elif direction == NW:
+			y += 1
+			x -= 1
+
+		return (x,y)
+
 	def getVisibleBoard(self,x,y,radius):
 		pass
 
@@ -123,6 +149,6 @@ class GameBoard(object):
 			for j in range(self.width):
 				if( self.board[i][j].__class__ is BoardObject):
 					continue
-				strang += "\t" + self.board[i][j].getXML() + "\n"
+				strang += "\t" + self.board[i][j].get_XML() + "\n"
 		strang += "</board>"
 		return strang

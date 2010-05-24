@@ -14,7 +14,7 @@ class Controller(threading.Thread):
 		self.logger = create_logger('Controller')
 		self.load_config(CONFIG_FILE)
 		self.board = GameBoard(self.width, self.height)
-		self.running = False
+		self.running = True
 		self.paused = False
 
 	def load_config(self, filename):
@@ -50,29 +50,9 @@ class Controller(threading.Thread):
 
 	def run(self):
 		self.logger.debug("Starting/Resuming game")
-		self.running = True
-		self.paused = False
 
 		while self.running and not self.paused and len(self.players):
-			self.logger.debug("Step")
-			# for each player, create their visible map and ask for a move
-			for player in self.board.players:
-				board = self.board.getVisibleBoard(player.x, player.y, self.maxvisibility)
-				player.request_move(board)
-
-			# wait for all of the players to respond (or timeout)
-			for player in self.board.players:
-				player.join()
-
-			self.logger.debug("Moving snowballs")
-			# apply all of the moves to the snowballs
-			for ball in self.board.snowballs:
-				ball.make_move()
-
-			self.logger.debug("Moving players")
-			# apply all of the moves to the players
-			for player in self.board.players:
-				player.make_move(self.board)
+			self.step()
 
 		if self.running:
 			self.logger.debug("Pausing game")
@@ -80,19 +60,41 @@ class Controller(threading.Thread):
 			# close the game
 			self.logger.debug("Stopping game")
 			while len(self.board.players):
-				player.disconnect()
-				del player
+				self.board.players[0].disconnect()
+				del self.board.players[0]
 
 			self.board.clear()
+
+	def step(self):
+		self.logger.debug("Step")
+		# for each player, create their visible map and ask for a move
+		for player in self.board.players:
+			board = self.board.getVisibleBoard(player.x, player.y, self.maxvisibility)
+			player.request_move(board)
+
+		# wait for all of the players to respond (or timeout)
+		for player in self.board.players:
+			player.join()
+
+		self.logger.debug("Moving snowballs")
+		# apply all of the moves to the snowballs
+		for ball in self.board.snowballs:
+			ball.make_move()
+
+		self.logger.debug("Moving players")
+		# apply all of the moves to the players
+		for player in self.board.players:
+			player.make_move(self.board)
 
 	def pause(self):
 		self.paused = True
 
 	def resume(self):
+		self.paused = False
 		self.start()
 
 	def stop(self):
 		self.running = False
 
-	def reload_config(self):
-		load_config(CONFIG_FILE)
+	'''def reload_config(self):
+		load_config(CONFIG_FILE)'''
