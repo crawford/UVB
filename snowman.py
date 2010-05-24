@@ -1,6 +1,6 @@
 from board_object import * 
 
-class Snowman(BoardObstacle):
+class Snowman(BoardObject):
     """ Simple obstacle for the board
 
     Attributes:

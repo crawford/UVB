@@ -22,6 +22,9 @@ class BoardObject(object):
 	def get_next_move(self):
 		return (self.x, self.y)
 
+	def handle_collision(self, other):
+		pass
+
     def move(self,x,y):
         self.x = x
         self.y = y

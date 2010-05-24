@@ -11,6 +11,9 @@ class Player(BoardObject):
 		self.logger = create_logger(username)
 		self.next_move = (STAY, N)
 
+	def __str__(self):
+		return '*'
+
 	def disconnect(self):
 		self.logger.info("Disconnecting")
 		self.connection.close()

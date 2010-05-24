@@ -14,5 +14,8 @@ class Snowball(BoardObject):
         self.owner = owner
         super(Snowball,self).__init__(x,y)
 
+	def __str__(self):
+		return 'O'
+
     def get_XML(self):
         return "<" + self.__class__.__name__ + " x=\"" + str(self.x) + "\" y=\"" + str(self.y) + "\" owner=\"" + self.owner + "\" direction=\"" + self.direction +"\"></" + self.__class__.__name__ + ">"
