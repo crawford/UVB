@@ -2,8 +2,9 @@
 
 import random
 from board_objects import *
-
-N, NE, E, SE, S, SW, W, NW, MOVE, SNOWBALL, SNOWMAN, STAY = range(12)
+from snowball import *
+from player import *
+from move import *
 
 class GameBoard(object):
 	""" GameBoard object for UVB-AI
@@ -43,7 +44,7 @@ class GameBoard(object):
 		self.height = height
 		self.players = []
 		self.snowballs = []
-		self.board = [[] for i in range(width)]
+		self.board = [[] for i in range(height)]
 
 	# get object at (x,y) coordinate
 	def getObject(self,x,y):
@@ -53,12 +54,13 @@ class GameBoard(object):
 			if(i.y == y):
 				return i
 			elif(i.y > y):
-				return False
+				return None
 
 	# add an object to the game board
 	def addObject(self,boardObject):
-		cur = getObject(boardObject.x,boardObject.y)
-		if( cur != False):
+		cur = self.getObject(boardObject.x,boardObject.y)
+		print cur
+		if( cur != None):
 			# return false if there's already something there
 			return False
 		else: 
@@ -68,10 +70,10 @@ class GameBoard(object):
 				self.snowballs.append(boardObject)
 			elif(boardObject.__class__ is Player):
 				# add to player dictionary
-				self.players[boardObject.ID] = boardObject
+				self.players.append(boardObject)
 
 			# add to the actual game board
-			if( len(self.board[boardObject.x] == 0) ): 
+			if( len(self.board[boardObject.x]) == 0 ): 
 				# append if list is empty
 				self.board[boardObject.x].append(boardObject);
 			else:
@@ -92,7 +94,7 @@ class GameBoard(object):
 			self.snowballs.remove(boardObject)
 		elif(boardObject.__class__ is Player):
 			# remove from player dictionary
-			del self.players[boardObject.ID]
+			self.players.remove(boardObject)
 		self.board[boardObject.x].remove(boardObject)
 
 	# move an object on the game board
@@ -103,25 +105,25 @@ class GameBoard(object):
 		boardObject.y = y
 		self.addObject(boardObject)
 
-	def nextPos(self,x,y,direction):
-		if direction == N:
+	def nextPos(self,(x,y),direction):
+		if direction == Dir.N:
 			y += 1
-		elif direction == NE:
+		elif direction == Dir.NE:
 			y += 1
 			x += 1
-		elif direction == E:
+		elif direction == Dir.E:
 			x += 1
-		elif direction == SE:
+		elif direction == Dir.SE:
 			y -= 1
 			x += 1
-		elif direction == S:
+		elif direction == Dir.S:
 			y -= 1
-		elif direction == SW:
+		elif direction == Dir.SW:
 			y -= 1
 			x -= 1
-		elif direction == W:
+		elif direction == Dir.W:
 			x -= 1
-		elif direction == NW:
+		elif direction == Dir.NW:
 			y += 1
 			x -= 1
 
@@ -137,7 +139,8 @@ class GameBoard(object):
 	def __str__(self):
 		strang = ""
 		for i in range(self.height):
-			for j in range(self.width):
+			for j in range(len(i)):
+				print (i, j)
 				strang += self.board[i][j].__str__() + " "
 			strang += "\n"
 		return strang

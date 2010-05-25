@@ -1,4 +1,4 @@
-from board_object import *
+from board_objects import *
 
 class Snowball(BoardObject):
     """ Represents a snowball object

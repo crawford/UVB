@@ -1,48 +1,52 @@
 # Board Objects module
 
 class BoardObject(object):
-    """ Superclass for a board object
+	""" Superclass for a board object
 
-    Attributes:
-        x - current x position
-        y - current y position
-    """
+	Attributes:
+		x - current x position
+		y - current y position
+	"""
 
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
 
-    def __str__(self):
-        return "-"
+	def __str__(self):
+		return "-"
 
-    def delete(self):
-        del self.x
-        del self.y
+	def delete(self):
+		del self.x
+		del self.y
 
 	def get_next_move(self):
 		return (self.x, self.y)
 
-	def handle_collision(self, other):
+	def make_move(self, board):
 		pass
 
-    def move(self,x,y):
-        self.x = x
-        self.y = y
+	def handle_collision(self, others):
+		pass
 
-    def get_position(self):
-        return (self.x,self.y)
+	def move(self,x,y):
+		self.x = x
+		self.y = y
 
-    def get_XML(self):
-        return "<" + self.__class__.__name__ + " x=\"" + str(self.x) + "\" y=\"" + str(self.y) + "\"></" + self.__class__.__name__ + ">"
+	def get_position(self):
+		return (self.x,self.y)
+
+	def get_XML(self):
+		return "<" + self.__class__.__name__ + " x=\"" + str(self.x) + "\" y=\"" + str(self.y) + "\"></" + self.__class__.__name__ + ">"
+
 
 '''
 class BoardObstacle(BoardObject):
-    """ Simple obstacle for the board
+	""" Simple obstacle for the board
 
-    Attributes:
-        x - current x position
-        y - current y position
-    """
-    def __str__(self):
-        return "^"
+	Attributes:
+		x - current x position
+		y - current y position
+	"""
+	def __str__(self):
+		return "^"
 '''

@@ -11,10 +11,10 @@ Backlog: 5
 
 [GameBoard]
 #The width of the gameboard
-Width: 100
+Width: 10
 
 #The height of the gameboard
-Height: 75
+Height: 5
 
 
 [Player]
