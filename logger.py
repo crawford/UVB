@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import logging
 import logging.handlers
 
@@ -15,13 +13,12 @@ Instructions:
 	logger.error('message')
 	logger.critical('message')
 
-	
 	The minimum logging levels for file logging and screen logging are below
 '''
 
 def create_logger(name):
-	LOG_FILENAME = '/var/www/test/uvb.log'
-	
+	LOG_FILENAME = 'uvb.log'
+
 	logger = logging.getLogger(name)
 	logger.setLevel(logging.DEBUG)
 
@@ -34,6 +31,7 @@ def create_logger(name):
 
 	strHandler = logging.StreamHandler()
 	strHandler.setLevel(logging.INFO)
+
 	logger.addHandler(strHandler)
 
 	return logger
