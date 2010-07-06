@@ -17,6 +17,8 @@ class Controller(object):
 	maxvisibility = None
 
 	def __init__(self):
+		threading.Thread.__init__(self)
+
 		self.logger = create_logger('Controller')
 		self.load_config(CONFIG_FILE)
 		self.board = GameBoard(self.width, self.height)
