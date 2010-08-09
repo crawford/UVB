@@ -17,15 +17,19 @@ class GameObject(object):
 	def get_y(self):
 		return self.coordinates[1]
 
+	def kill(self):
+		self.board.remove_object(self)
+		del self
+
 
 class DynamicObject(GameObject):
 	def __init__(self, board, coordinates):
 		super(DynamicObject, self).__init__(board, coordinates)
 
-	def getNextPosition(self):
+	def get_next_position(self):
 		pass
 
-	def handleCollision(self):
+	def handle_collision(self, others):
 		pass
 
 	def serialize(self):

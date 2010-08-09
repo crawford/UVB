@@ -1,4 +1,6 @@
 from constants import *
+from player import *
+from objects import *
 
 class GameBoard(object):
 	width = None
@@ -23,7 +25,7 @@ class GameBoard(object):
 		for y in xrange(self.height):
 			out += '|'
 			for x in xrange(self.width):
-				obj = self.get_object(x, y)
+				obj = self.get_object((x, y))
 				if(obj == None):
 					out += ' '
 				else:
@@ -33,7 +35,7 @@ class GameBoard(object):
 		return out
 
 	# get object at (x,y) coordinate
-	def get_object(self, x, y):
+	def get_object(self, (x, y)):
 		#TODO: more efficient
 		for row in self.rows:
 			for obj in row:
@@ -43,6 +45,22 @@ class GameBoard(object):
 
 	# add an object to the game board
 	def add_object(self, obj):
+		#make sure the object is within the board
+		if(not self.is_pos_on_board(obj.coordinates)):
+			raise Exception("Object not within game board")
+
+		#make sure there are no other object at the same location
+		#if(self.get_object(obj.coordinates) != None):
+		#	raise Exception("Already an object at that location");
+
+		#add the object into the list
+		if(isinstance(obj, Player)):
+			self.players.append(obj)
+		elif(isinstance(obj, DynamicObject)):
+			self.dynamicObjects.append(obj)
+		elif(isinstance(obj, StaticObject)):
+			self.staticObjects.append(obj)
+
 		#if the rows are all empty, add the object at the first index
 		if(len(self.rows) == 0):
 			self.rows.insert(0, [obj])
@@ -87,36 +105,53 @@ class GameBoard(object):
 
 	# remove an object from the game board
 	def remove_object(self, obj):
-		pass
+		for row in self.rows:
+			if(obj in row):
+				row.remove(obj)
+				if(len(row) == 0):
+					self.rows.remove(row)
+				break
+
+		if(isinstance(obj, Player)):
+			self.players.remove(obj)
+		elif(isinstance(obj, DynamicObject)):
+			self.dynamicObjects.remove(obj)
+		elif(isinstance(obj, StaticObject)):
+			self.staticObjects.remove(obj)
 
 	# move an object on the game board
-	def move_object(self, obj, x, y):
-		pass
+	def move_object(self, obj, coordinates):
+		self.remove_object(obj)
+		obj.coordinates = coordinates
+		self.add_object(obj)
 
-	def next_pos(self, (x, y), direction):
-		if direction == Direction.N:
+	def next_pos_in_direction(self, (x, y), direction):
+		if direction == Direction.NORTH:
+			y -= 1
+		elif direction == Direction.NORTHEAST:
+			y -= 1
+			x += 1
+		elif direction == Direction.EAST:
+			x += 1
+		elif direction == Direction.SOUTHEAST:
 			y += 1
-		elif direction == Direction.NE:
+			x += 1
+		elif direction == Direction.SOUTH:
 			y += 1
-			x += 1
-		elif direction == Direction.E:
-			x += 1
-		elif direction == Direction.SE:
-			y -= 1
-			x += 1
-		elif direction == Direction.S:
-			y -= 1
-		elif direction == Direction.SW:
-			y -= 1
+		elif direction == Direction.SOUTHWEST:
+			y += 1
 			x -= 1
-		elif direction == Direction.W:
+		elif direction == Direction.WEST:
 			x -= 1
-		elif direction == Direction.NW:
-			y += 1
+		elif direction == Direction.NORTHWEST:
+			y -= 1
 			x -= 1
 		return (x, y)
 
-	def get_visible_board(self,x,y,radius):
+	def is_pos_on_board(self, (x, y)):
+		return (x < self.width or y < self.height or x >= 0 or y >= 0)
+
+	def get_visible_board(self, (x, y), radius):
 		pass
 
 	def clear(self):

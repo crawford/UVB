@@ -17,8 +17,6 @@ class Controller(object):
 	maxvisibility = None
 
 	def __init__(self):
-		threading.Thread.__init__(self)
-
 		self.logger = create_logger('Controller')
 		self.load_config(CONFIG_FILE)
 		self.board = GameBoard(self.width, self.height)
@@ -93,53 +91,49 @@ class Controller(object):
 
 		# populate the nextMoves list with dynamic objects
 		for obj in self.board.dynamicObjects:
-			if obj.coordinates in nextMoves:
-				nextMoves[obj.coordinates].append(obj)
+			move = obj.get_next_position()
+			if move in nextMoves:
+				nextMoves[move].append(obj)
 			else:
-				nextMoves[obj.coordinates] = [obj]
+				nextMoves[move] = [obj]
 
 		self.logger.debug("Getting players' moves")
 
 		# for each player, create their visible map and ask for a move
 		for player in self.board.players:
-			board = self.board.getVisibleBoard(player.x, player.y, self.maxvisibility)
+			board = self.board.getVisibleBoard((player.get_x(), player.get_y()), self.maxvisibility)
 			player.request_move(board)
 
 		# wait for all of the players to respond (or timeout)
 		for player in self.board.players:
 			player.connection.join()
-			move = player.get_next_move()
-			try:
+			move = player.get_next_position()
+			if move in nextMoves:
 				nextMoves[move].append(player)
-			except KeyError:
+			else:
 				nextMoves[move] = [player]
 
-		# apply all of the moves to the snowballs
-		for ball in self.board.snowballs:
-			move = ball.get_next_move()
-			try:
-				nextMoves[move].append(ball)
-			except KeyError:
-				nextMoves[move] = list(ball)
+		print nextMoves
 
 		# check for collisions and handle them
 		for loc,lst in nextMoves.items():
 			if len(lst) > 1:
 				# if there are more than one object at that location
 				for obj in lst:
-					# loop through each of the objects
-					# and have them handle the collision
-					others = loc
-					others.remove(obj)
-					obj.handle_collision(others)
+					# loop through each of the objects and
+					# have the dynamic ones handle the collision
+					if(isinstance(obj, DynamicObject)):
+						others = nextMoves[loc][:]
+						others.remove(obj)
+						obj.handle_collision(others)
 
-		
+
 		# apply all of the moves to the objects
 		self.logger.debug("Applying moves")
+		for obj in self.board.dynamicObjects:
+			self.board.move_object(obj, obj.get_next_position())
 		for player in self.board.players:
-			player.make_move(self.board)
-		for snowball in self.board.snowballs:
-			snowball.make_move(self.board)
+			self.board.move_object(player, player.get_next_position())
 
 		print self.board
 
