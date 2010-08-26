@@ -38,13 +38,17 @@ class Controller(object):
 		self.logger.info("Game Height: " + str(self.height))
 		self.logger.info("Game Width: " + str(self.width))
 
+	def create_player(self, username, connection):
+		player = Player(username, connection, self.board, (0,0))
+		return player
+
 	def add_player(self, newPlayer):
 		# check to see if player already exists
 		if self.get_player(newPlayer.username):
 			raise Exception('Player', 'Already exists')
 
 		#add player to game
-		self.board.addObject(newPlayer)
+		self.board.add_object(newPlayer)
 
 	def get_player(self, name):
 		for player in self.board.players:

@@ -1,12 +1,12 @@
 from logger import *
+from threading import Thread
 import db
-import threading
 import select
 import sys
 import ssl
 import socket
 
-class Connection(threading.Thread):
+class Connection(Thread):
 	socket = None
 	hostname = None
 	server = None
@@ -19,7 +19,7 @@ class Connection(threading.Thread):
 	readsize = None
 
 	def __init__(self, socket, hostname, server):
-		threading.Thread.__init__(self)
+		Thread.__init__(self)
 
 		self.socket = socket
 		self.hostname = hostname
@@ -39,7 +39,7 @@ class Connection(threading.Thread):
 		#request the key
 		self.socket.send('key')
 
-#		if not self.peek_buffer():
+		#if not self.peek_buffer():
 		#wait for the response
 		r, w, e = select.select([self.socket], [], [], self.timeout)
 		self.read_socket(self.readsize)

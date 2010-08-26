@@ -16,7 +16,7 @@ if __name__ == "__main__":
 	inready, outready, exready = select.select([], [sock], [], 5)
 
 	if outready:
-		sock.send("test from python")
+		sock.send("P6X6qeCysSj4xx2TeRC0OtJ46bWOsZDi")
 
 
 	a = raw_input('d')
