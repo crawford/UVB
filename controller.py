@@ -50,6 +50,9 @@ class Controller(object):
 		#add player to game
 		self.board.add_object(newPlayer)
 
+	def remove_player(self, player):
+		self.board.remove_object(player)
+
 	def get_player(self, name):
 		for player in self.board.players:
 			if player.username == name:

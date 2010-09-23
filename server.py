@@ -18,7 +18,7 @@ class Server(threading.Thread):
 	connection_backlog = None
 	size = None
 	server = None
-	connections = None
+	anon_conns = None
 	server_timeout = None
 	maxplayers = None
 	controller = None
@@ -33,7 +33,8 @@ class Server(threading.Thread):
 		self.connection_backlog = 5
 		self.size = 1024
 		self.server = None
-		self.connections = []
+		self.anon_conns = []
+		self.players = []
 		self.server_timeout = 5
 		self.maxplayers = 100
 		self.controller = None
@@ -69,11 +70,17 @@ class Server(threading.Thread):
 		while self.running:
 			try:
 				rsocket, address = self.server.accept()
-				hostname, aliases, iplist = socket.gethostbyaddr(address[0])
+
+				# Try to get the hostname, otherwise just use the IP address
+				try:
+					hostname, aliases, iplist = socket.gethostbyaddr(address[0])
+				except socket.herror:
+					hostname = address[0]
+
 				self.logger.info("New connection from " + str(hostname) + " " + str(rsocket.cipher()))
 				p = Connection(rsocket, hostname, self)
 				p.authenticate()
-				s.connections.append(p)
+				s.anon_conns.append(p)
 			except socket.timeout:
 				pass
 
@@ -109,7 +116,12 @@ class Server(threading.Thread):
 
 		player = self.controller.create_player(username, connection)
 		connection.logger = player.logger
-		
+
+		# Remove the connection from the list of anonymous connections
+		self.anon_conns.remove(connection)
+
+		# Add the player to the list of players
+		self.players.append(player)
 		self.controller.add_player(player)
 
 	def close(self):
@@ -119,13 +131,24 @@ class Server(threading.Thread):
 
 	def destroy_idle_connections(self):
 		i = 0
-		while i < len(self.connections):
-			if not self.connections[i].is_running():
-				self.connections[i].close()
-				self.logger.info("Removing idle connection to " + str(self.connections[i].hostname))
-				del self.connections[i]
+		while i < len(self.anon_conns):
+			if not self.anon_conns[i].is_running():
+				self.anon_conns[i].close()
+				self.logger.info("Removing idle connection to " + str(self.anon_conns[i].hostname))
+				del self.anon_conns[i]
 			else:
 				i = i+1
+
+		i = 0
+		while i < len(self.players):
+			if not self.players[i].connection.is_running():
+				self.players[i].disconnect()
+				self.controller.remove_player(self.players[i])
+				self.logger.info("Removing idle connection to " + str(self.players[i].username))
+				del self.players[i]
+			else:
+				i = i+1
+
 
 
 
@@ -140,7 +163,7 @@ def command_quit():
 	s.close()
 
 def command_players():
-	print len(s.connections), " player(s)"
+	print len(s.players), " player(s)"
 
 def command_unknown():
 	print "Unknown command.  Type 'help' for commands."
