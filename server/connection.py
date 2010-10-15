@@ -62,6 +62,9 @@ class Connection(Thread):
 		self.logger.info(self.hostname + " authenticated as " + username)
 		self.server.create_player(username, self)
 
+		#Send positive confirmation
+		self.socket.send('1')
+
 	def thrd_move(self):
 		#self.socket.send(map)
 		pass
