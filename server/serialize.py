@@ -1,7 +1,7 @@
-import simplejson
+import jsonpickle
 
 def dump(objects):
-	return simplejson.dumps(objects)
+	return jsonpickle.encode(objects)
 
 def load(dump):
-	return simplejson.loads(dump)
+	return jsonpickle.decode(dump)

@@ -1,6 +1,29 @@
 #!/usr/bin/python
 
-import socket
+from client import Client
+from constants import Action, Direction
+
+def dummy(junk):
+	return (Action.MOVE, Direction.SOUTHEAST)
+
+
+c = Client()
+
+c.KEY = 'P6X6qeCysSj4xx2TeRC0OtJ46bWOsZDi'
+c.decide_move = dummy
+c.connect()
+c.start()
+
+raw_input('Press any key to quit...')
+
+c.stop()
+c.disconnect()
+
+
+
+
+
+'''import socket
 import select
 import ssl
 
@@ -21,4 +44,4 @@ if __name__ == "__main__":
 
 	a = raw_input('d')
 
-	sock.close()
+	sock.close()'''

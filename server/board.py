@@ -159,7 +159,7 @@ class GameBoard(object):
 		return (x < self.width and y < self.height and x >= 0 and y >= 0)
 
 	def get_visible_board(self, (x, y), radius):
-		pass
+		return self
 
 	def clear(self):
 		pass

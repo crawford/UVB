@@ -67,6 +67,8 @@ class Server(threading.Thread):
 		self.server.settimeout(self.server_timeout)
 		self.server.listen(self.connection_backlog)
 
+		self.controller.start()
+
 		while self.running:
 			try:
 				rsocket, address = self.server.accept()

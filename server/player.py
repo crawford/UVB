@@ -7,7 +7,6 @@ class Player(DynamicObject):
 	username = None
 	connection = None
 	logger = None
-	nextMove = None
 
 	def __init__(self, username, connection, board, position):
 		super(Player, self).__init__(board, position)
@@ -15,7 +14,6 @@ class Player(DynamicObject):
 		self.username = username
 		self.connection = connection
 		self.logger = create_logger(username)
-		self.nextMove = (Action.NOP, Direction.NORTH)
 
 	def __str__(self):
 		return '*'
@@ -23,6 +21,7 @@ class Player(DynamicObject):
 	def disconnect(self):
 		self.logger.info("Disconnecting")
 		self.connection.close()
+		del self.logger
 
 	def increment_kills(self, player):
 		logger.debug(self.username + " hit " + player.username)
@@ -37,10 +36,13 @@ class Player(DynamicObject):
 		#TODO: update db
 
 	def request_move(self, board):
-		#nextMove = self.connection.get_move(board.getXML())
-		self.nextMove = (Action.MOVE, Direction.S)
+		self.connection.get_move(board)
 
 	def get_next_position(self):
+		if self.connection.next_move[0] == Action.MOVE:
+			return self.board.next_pos_in_direction(self.coordinates,
+                                                    self.connection.next_move[1])
+
 		return self.coordinates
 
 	def handle_collision(self, others):

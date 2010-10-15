@@ -1,12 +1,14 @@
 from logger import *
 from threading import Thread
+from constants import Action, Direction
 import db
 import select
 import sys
 import ssl
 import socket
+import serialize
 
-class Connection(Thread):
+class Connection(object):
 	socket = None
 	hostname = None
 	server = None
@@ -17,10 +19,12 @@ class Connection(Thread):
 	operation = None
 	buffer = None
 	readsize = None
+	username = None
+	move_thread = None
+	next_move = None
+	client_map = None
 
 	def __init__(self, socket, hostname, server):
-		Thread.__init__(self)
-
 		self.socket = socket
 		self.hostname = hostname
 		self.server = server
@@ -31,13 +35,17 @@ class Connection(Thread):
 		self.operation = None
 		self.buffer = ""
 		self.readsize = 1024
+		self.username = ""
+		self.move_thread = None
+		self.next_move = (Action.NOP, Direction.NORTH)
+		self.client_map = None
 
 	def thrd_auth(self):
 		#clear the buffer
 		self.read_buffer()
 
 		#request the key
-		self.socket.send('key')
+		self.send_message('key')
 
 		#if not self.peek_buffer():
 		#wait for the response
@@ -47,62 +55,102 @@ class Connection(Thread):
 		secret = self.read_buffer()
 
 		if not secret:
-			self.logger.info("Response timed out from " + self.hostname)
+			self.logger.error("Response timed out from " + self.hostname)
 			self.running = False
 			return
 
 		self.logger.debug("Received secret key from " + self.hostname + ": " + secret)
 
-		username = db.get_username(secret)
-		if not username:
-			self.logger.info("Invalid key from " + self.hostname)
+		self.username = db.get_username(secret)
+		if not self.username:
+			self.logger.error("Invalid key from " + self.hostname)
+			self.send_message('0')
 			self.running = False
 			return
 
-		self.logger.info(self.hostname + " authenticated as " + username)
-		self.server.create_player(username, self)
+		self.logger.info(self.hostname + " authenticated as " + self.username)
+		self.server.create_player(self.username, self)
 
 		#Send positive confirmation
-		self.socket.send('1')
+		self.send_message('1')
 
 	def thrd_move(self):
-		#self.socket.send(map)
-		pass
+		# Clear the buffer
+		self.read_buffer()
+
+		# Request the move
+		self.send_message('move')
+		
+		# Send the map to the player
+		self.send_message(serialize.dump(self.client_map))
+
+		# Wait for the response
+		r, w, e = select.select([self.socket], [], [], self.timeout)
+		self.read_socket(self.readsize)
+
+		move = self.read_buffer()
+		print move
+		
+		if not move:
+			self.logger.error("Response timed out from " + self.username)
+			return
+
+		self.logger.info("Received move from " + self.username + ": " + move)
+
+		self.next_move = move.split(':')
+		self.next_move[0] = int(self.next_move[0])
+		self.next_move[1] = int(self.next_move[1])
+
+	def send_message(self, message):
+		try:
+			self.socket.send(message)
+		except:
+			self.running = False
 
 	def authenticate(self):
 		t = Thread(group = None, target = self.thrd_auth)
 		t.start()
 
 	def get_move(self, map):
-		t = Thread(group = None, target = self.thrd_move)
-		t.start()
+		self.client_map = map
+
+		# Reset the move
+		self.next_move = (Action.NOP, Direction.NORTH)
+		
+		# Wait for the response
+		self.move_thread = Thread(group = None, target = self.thrd_move)
+		self.move_thread.start()
+
+	def move_join(self):
+		self.move_thread.join()
 
 	def is_running(self):
-		print "Checking"
+		#print "Checking"
 		if self.running == False:
 			return False
 		
-		self.read_socket(self.readsize)
+		#self.read_socket(self.readsize)
 		return self.running
 
 	def read_socket(self, length):
-		print "Attempting to read...",
+		#print "Attempting to read...",
 		r, w, e = select.select([self.socket], [], [], 0)
 		if r:
 			try:
-				print "Ready"
+				#print "Ready"
 				data = self.socket.recv(length)
-				print "Read", data
+				#print "Read", data
 				
 				if data:
 					self.buffer += data
 				else:
 					self.running = False
 			except socket.error as error:
-				print error
+				self.logger.error(error)
 				self.running = False
 		else:
-			print "Not Ready"
+			#print "Not Ready"
+			pass
 			
 	def read_buffer(self):
 		out = self.buffer

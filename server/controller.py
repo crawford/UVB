@@ -1,7 +1,7 @@
 from logger import *
 from board import *
-import ConfigParser
 from threading import Thread
+import ConfigParser
 import time
 
 CONFIG_FILE = "config"
@@ -108,13 +108,14 @@ class Controller(object):
 
 		# for each player, create their visible map and ask for a move
 		for player in self.board.players:
-			board = self.board.getVisibleBoard((player.get_x(), player.get_y()), self.maxvisibility)
+			board = self.board.get_visible_board((player.get_x(), player.get_y()), self.maxvisibility)
 			player.request_move(board)
 
 		# wait for all of the players to respond (or timeout)
 		for player in self.board.players:
-			player.connection.join()
+			player.connection.move_join()
 			move = player.get_next_position()
+			print move
 			if move in nextMoves:
 				nextMoves[move].append(player)
 			else:
