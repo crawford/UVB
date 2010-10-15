@@ -78,13 +78,16 @@ class Client(Thread):
 
 			if inready:
 				response = self.sock.recv(4)
-				print response
-				
+
+				# Check for a closed connection
+				if response == '':
+					print 'Server shutdown'
+					return
+
 				if response != 'move':
 					continue
 
 				response = self.sock.recv(10000)
-				print response
 				board = serialize.load(response)
 				print board
 

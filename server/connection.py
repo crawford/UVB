@@ -97,9 +97,8 @@ class Connection(object):
 
 		self.logger.info("Received move from " + self.username + ": " + move)
 
-		self.next_move = move.split(':')
-		self.next_move[0] = int(self.next_move[0])
-		self.next_move[1] = int(self.next_move[1])
+		act,dir = move.split(':')
+		self.next_move = (int(act), int(dir))
 
 	def send_message(self, message):
 		try:

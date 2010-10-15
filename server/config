@@ -25,7 +25,7 @@ MaxDecisionTime: 3000
 MinVisibility: 3
 
 #Maximum value for the player's visibility
-MaxVisibility: 30
+MaxVisibility: 10
 
 [Snowball]
 #The speed of the snowball

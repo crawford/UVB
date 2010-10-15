@@ -1,6 +1,8 @@
 from constants import *
 from player import *
 from objects import *
+from map import *
+from math import sqrt
 
 class GameBoard(object):
 	width = None
@@ -159,7 +161,128 @@ class GameBoard(object):
 		return (x < self.width and y < self.height and x >= 0 and y >= 0)
 
 	def get_visible_board(self, (x, y), radius):
-		return self
+		map = GameMap()
+		map.radius = radius
+
+		# Loop through each row in the visible circle
+		iRow = 0
+		dy = y - radius
+		while dy <= y + radius:
+			# Find the desired row
+			while iRow < len(self.rows) and self.rows[iRow][0].get_y() < dy:
+				iRow += 1
+
+			# Make sure we don't go beyond the end of the array
+			if iRow == len(self.rows):
+				break
+
+			# Check to see if we skipped over it (the row we wanted was empty)
+			dy = self.rows[iRow][0].get_y()
+
+
+			# Calculate the valid width ( x^2 = r^2/y^2 )
+			ry = dy - y
+			if ry == 0:
+				row_width = radius
+			else:
+				row_width = sqrt(radius*radius/ry/ry)
+
+			# Loop through the valid cols in the current row
+			dx = x - row_width
+			iCol = 0
+			while dx <= x + row_width:
+				# Find the desired col
+				while iCol < len(self.rows[iRow]) and self.rows[iRow][iCol].get_x() < dx:
+					iCol += 1
+
+				# Make sure we don't go beyond the end of the array
+				if iCol == len(self.rows[iRow]):
+					break
+
+				# Check to see if we skipped over it (no objects there)
+				dx = self.rows[iRow][iCol].get_x()
+
+				# Add the object at this location
+				map.objects[(dx - x, dy - y)] = str(self.rows[iRow][iCol])
+
+				dx += 1
+
+			dy += 1
+
+		# Draw the edges (if any) on the map
+		if not self.is_pos_on_board((x + radius, 0)):
+			# Edge on the right side
+			dx = self.width - x
+			top_length = sqrt(radius*radius/dx/dx)
+			bottom_length = top_length
+
+			# Clip the edge so we don't draw too far
+			if y - top_length < 0:
+				top_length = y
+
+			# Clip the edge so we don't draw too far
+			if y + bottom_length > self.height:
+				bottom_length = self.height - y
+
+			for dy in xrange(-top_length, bottom_length + 1):
+				map.objects[(dx, dy)] = map.EDGE
+
+		if not self.is_pos_on_board((x - radius, 0)):
+			# Edge on the left side
+			dx = -x - 1
+			top_length = sqrt(radius*radius/dx/dx)
+			bottom_length = top_length
+
+			# Clip the edge so we don't draw too far
+			if y - top_length < 0:
+				top_length = y
+
+			# Clip the edge so we don't draw too far
+			if y + bottom_length > self.height:
+				bottom_length = self.height - y
+
+			for dy in xrange(-top_length, bottom_length + 1):
+				map.objects[(dx, dy)] = map.EDGE
+
+		if not self.is_pos_on_board((0, y + radius)):
+			# Edge on the bottom side
+			dy = self.height - y
+			left_length = sqrt(radius*radius/dy/dy)
+			right_length = left_length
+
+			# Clip the edge so we don't draw too far
+			if x - left_length < 0:
+				left_length = x
+
+			# Clip the edge so we don't draw too far
+			if x + right_length > self.width:
+				right_length = self.width - x
+
+			for dx in xrange(-left_length, right_length + 1):
+				map.objects[(dx, dy)] = map.EDGE
+
+		if not self.is_pos_on_board((0, y - radius)):
+			# Edge on the top side
+			dy = -y - 1
+			left_length = sqrt(radius*radius/dy/dy)
+			right_length = left_length
+
+			# Clip the edge so we don't draw too far
+			if x - left_length < 0:
+				left_length = x
+
+			# Clip the edge so we don't draw too far
+			if x + right_length > self.width:
+				right_length = self.width - x
+
+			for dx in xrange(-left_length, right_length + 1):
+				map.objects[(dx, dy)] = map.EDGE
+
+	
+		# Add the current player to the center of the map
+		map.objects[(0, 0)] = map.ME
+
+		return map
 
 	def clear(self):
 		pass
