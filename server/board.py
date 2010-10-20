@@ -246,7 +246,7 @@ class GameBoard(object):
 			if y + bottom_length > self.height:
 				bottom_length = self.height - y
 
-			for dy in xrange(-top_length, bottom_length + 1):
+			for dy in xrange(-top_length - 1, bottom_length + 1):
 				map.objects[(dx, dy)] = map.EDGE
 
 		if not self.is_pos_on_board((0, y + radius)):
@@ -280,7 +280,7 @@ class GameBoard(object):
 			if x + right_length > self.width:
 				right_length = self.width - x
 
-			for dx in xrange(-left_length, right_length + 1):
+			for dx in xrange(-left_length - 1, right_length + 1):
 				map.objects[(dx, dy)] = map.EDGE
 
 	
