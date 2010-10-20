@@ -1,8 +1,10 @@
 from logger import *
 from board import *
+from tree import Tree
 from threading import Thread
 import ConfigParser
 import time
+import random
 
 CONFIG_FILE = "config"
 
@@ -15,6 +17,8 @@ class Controller(object):
 	height = None
 	minvisibility = None
 	maxvisibility = None
+	mintrees = None
+	maxtrees = None
 
 	def __init__(self):
 		self.logger = create_logger('Controller')
@@ -22,6 +26,17 @@ class Controller(object):
 		self.board = GameBoard(self.width, self.height)
 		self.running = False
 		self.paused = False
+		
+		# Put some trees on the board
+		num_trees = random.randint(self.mintrees*self.width*self.height,
+		                           self.maxtrees*self.width*self.height)
+
+		for i in xrange(num_trees):
+			x = random.randint(0, self.width - 1)
+			y = random.randint(0, self.height - 1)
+
+			if not self.board.get_object((x, y)):
+				self.board.add_object(Tree(self.board, (x, y)))
 
 	def load_config(self, filename):
 		self.logger.info("Loading game configuration...")
@@ -32,6 +47,8 @@ class Controller(object):
 		self.height = int(config.get("GameBoard", "Height"))
 		self.minvisibility = int(config.get("Player", "MinVisibility"))
 		self.maxvisibility = int(config.get("Player", "MaxVisibility"))
+		self.mintrees = float(config.get("GameBoard", "MinTrees"))
+		self.maxtrees = float(config.get("GameBoard", "MaxTrees"))
 
 		self.logger.info("Min Visibility: " + str(self.minvisibility))
 		self.logger.info("Max Visibility: " + str(self.maxvisibility))

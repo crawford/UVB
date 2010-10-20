@@ -5,4 +5,4 @@ class Tree(StaticObject):
 		super(Tree, self).__init__(board, coordinates)
 
 	def __str__(self):
-		return "#"
+		return "^"

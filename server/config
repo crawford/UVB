@@ -16,6 +16,12 @@ Width: 50
 #The height of the gameboard
 Height: 50
 
+#Minimum number of trees
+MinTrees: 0.01
+
+#Maximum number of trees
+MaxTrees: 0.10
+
 
 [Player]
 #Maximum amount of time for the player's decision (milliseconds)

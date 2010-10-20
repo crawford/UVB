@@ -182,15 +182,19 @@ class GameBoard(object):
 				break
 
 			# Check to see if we skipped over it (the row we wanted was empty)
-			dy = self.rows[iRow][0].get_y()
+			if dy < self.rows[iRow][0].get_y():
+				dy = self.rows[iRow][0].get_y()
+				# make sure we haven't gone too far
+				if dy > y + radius:
+					continue
 
 
-			# Calculate the valid width ( x^2 = r^2/y^2 )
+			# Calculate the valid width ( x^2 = r^2 - y^2 )
 			ry = dy - y
 			if ry == 0:
 				row_width = radius
 			else:
-				row_width = sqrt(radius*radius/ry/ry)
+				row_width = sqrt(radius*radius - ry*ry)
 
 			# Loop through the valid cols in the current row
 			dx = x - row_width
@@ -205,7 +209,11 @@ class GameBoard(object):
 					break
 
 				# Check to see if we skipped over it (no objects there)
-				dx = self.rows[iRow][iCol].get_x()
+				if dx < self.rows[iRow][iCol].get_x():
+					dx = self.rows[iRow][iCol].get_x()
+					# make sure we haven't gone too far
+					if dx > x + row_width:
+						continue
 
 				# Add the object at this location
 				map.objects[(dx - x, dy - y)] = str(self.rows[iRow][iCol])
@@ -218,7 +226,7 @@ class GameBoard(object):
 		if not self.is_pos_on_board((x + radius, 0)):
 			# Edge on the right side
 			dx = self.width - x
-			top_length = int(sqrt(radius*radius/dx/dx))
+			top_length = int(sqrt(radius*radius - dx*dx))
 			bottom_length = top_length
 
 			# Clip the edge so we don't draw too far
@@ -235,24 +243,24 @@ class GameBoard(object):
 		if not self.is_pos_on_board((x - radius, 0)):
 			# Edge on the left side
 			dx = -x - 1
-			top_length = int(sqrt(radius*radius/dx/dx))
+			top_length = int(sqrt(radius*radius - dx*dx))
 			bottom_length = top_length
 
 			# Clip the edge so we don't draw too far
 			if y - top_length < 0:
-				top_length = y
+				top_length = y + 1
 
 			# Clip the edge so we don't draw too far
 			if y + bottom_length > self.height:
 				bottom_length = self.height - y
 
-			for dy in xrange(-top_length - 1, bottom_length + 1):
+			for dy in xrange(-top_length, bottom_length + 1):
 				map.objects[(dx, dy)] = map.EDGE
 
 		if not self.is_pos_on_board((0, y + radius)):
 			# Edge on the bottom side
 			dy = self.height - y
-			left_length = int(sqrt(radius*radius/dy/dy))
+			left_length = int(sqrt(radius*radius - dy*dy))
 			right_length = left_length
 
 			# Clip the edge so we don't draw too far
@@ -269,18 +277,18 @@ class GameBoard(object):
 		if not self.is_pos_on_board((0, y - radius)):
 			# Edge on the top side
 			dy = -y - 1
-			left_length = int(sqrt(radius*radius/dy/dy))
+			left_length = int(sqrt(radius*radius - dy*dy))
 			right_length = left_length
 
 			# Clip the edge so we don't draw too far
 			if x - left_length < 0:
-				left_length = x
+				left_length = x + 1
 
 			# Clip the edge so we don't draw too far
 			if x + right_length > self.width:
 				right_length = self.width - x
 
-			for dx in xrange(-left_length - 1, right_length + 1):
+			for dx in xrange(-left_length, right_length + 1):
 				map.objects[(dx, dy)] = map.EDGE
 
 	

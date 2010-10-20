@@ -22,16 +22,18 @@ class GameMap(object):
 		self.UNKNOWN = '?'
 
 	def __str__(self):
-		out = '+' + '+'.rjust(self.radius*2 + 2, '-') + '\n'
+		out = '+' + '+'.rjust(self.radius*4 + 4, '-') + '\n'
 		for y in range(-self.radius, self.radius + 1):
-			out += '|'
+			out += '| '
 			for x in range(-self.radius, self.radius + 1):
 				if str((x, y)) in self.objects:
 					out += self.objects[str((x, y))]
 				else:
 					out += ' '
+
+				out += ' '
 			out += '|\n'
-		out += '+' + '+'.rjust(self.radius*2 + 2, '-')
+		out += '+' + '+'.rjust(self.radius*4 + 4, '-')
 
 		return out
 
