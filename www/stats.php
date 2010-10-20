@@ -43,6 +43,10 @@ setInterval("updateStats()", 5000);
 </script>
 </head>
 <body>
+<?php
+include_once('nav.php');
+?>
+
 <h1>Stats</h1>
 <table id="stats" class="tablesorter">
 <thead>
