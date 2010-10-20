@@ -126,6 +126,8 @@ class Server(threading.Thread):
 		# Add the player to the list of players
 		self.players.append(player)
 		self.controller.add_player(player)
+		if not self.controller.running:
+			self.controller.start()
 
 	def close(self):
 		self.running = False

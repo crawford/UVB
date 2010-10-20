@@ -130,9 +130,14 @@ class GameBoard(object):
 
 	# move an object on the game board
 	def move_object(self, obj, coordinates):
+		if not self.is_pos_on_board(coordinates):
+			return False
+
 		self.remove_object_from_board(obj)
 		obj.coordinates = coordinates
 		self.add_object_to_board(obj)
+
+		return True
 
 	def next_pos_in_direction(self, (x, y), direction):
 		if direction == Direction.NORTH:

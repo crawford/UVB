@@ -24,7 +24,7 @@ class Player(DynamicObject):
 		self.connection.close()
 
 	def increment_kills(self, player):
-		logger.debug(self.username + " hit " + player.username)
+		self.logger.debug(self.username + " hit " + player.username)
 		#TODO: update db
 
 	def increment_steps(self):
@@ -32,7 +32,7 @@ class Player(DynamicObject):
 		#TODO: update db
 
 	def increment_deaths(self):
-		logger.debug(self.username + " died")
+		self.logger.debug(self.username + " died")
 		#TODO: update db
 
 	def request_move(self, board):

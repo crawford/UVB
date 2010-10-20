@@ -69,10 +69,9 @@ class Controller(object):
 
 		self.running = True
 
-		#while self.running and not self.paused and len(self.board.players):
-		while self.running and not self.paused:
+		while self.running and not self.paused and len(self.board.players) > 0 :
 			self.step()
-			time.sleep(1)
+			#time.sleep(1)
 
 		if self.running:
 			self.logger.debug("Pausing game")
@@ -84,6 +83,8 @@ class Controller(object):
 				del self.board.players[0]
 
 			self.board.clear()
+
+		self.running = False
 
 	def step(self):
 		nextMoves = {}
@@ -141,7 +142,9 @@ class Controller(object):
 		for obj in self.board.dynamicObjects:
 			self.board.move_object(obj, obj.get_next_position())
 		for player in self.board.players:
-			self.board.move_object(player, player.get_next_position())
+			if not self.board.move_object(player, player.get_next_position()):
+				# if the player could not move (moved off game board)
+				player.increment_deaths()
 
 		#print self.board
 

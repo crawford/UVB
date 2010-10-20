@@ -3,9 +3,22 @@
 from client import Client
 from constants import Action, Direction
 
-def dummy(junk):
-	return (Action.MOVE, Direction.SOUTHEAST)
+def dummy(board):
+	global last_dir
 
+	print board
+
+	next_pos = board.next_pos_in_direction((0, 0), last_dir)
+
+	if board.get_object_at(next_pos):
+		last_dir = board.rotate_left(last_dir)
+		last_dir = board.rotate_left(last_dir)
+
+	return (Action.MOVE, last_dir)
+
+
+
+last_dir = Direction.SOUTH
 
 c = Client()
 
@@ -17,6 +30,7 @@ c.start()
 raw_input('Press any key to quit...')
 
 c.stop()
+c.join()
 c.disconnect()
 
 

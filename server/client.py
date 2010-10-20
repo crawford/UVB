@@ -73,7 +73,6 @@ class Client(Thread):
 		self.running = True
 
 		while self.running:
-			print 'Checking'
 			inready, outready, exready = select.select([self.sock], [], [], 5)
 
 			if inready:
@@ -81,7 +80,6 @@ class Client(Thread):
 
 				# Check for a closed connection
 				if response == '':
-					print 'Server shutdown'
 					return
 
 				if response != 'move':
@@ -89,9 +87,7 @@ class Client(Thread):
 
 				response = self.sock.recv(10000)
 				board = serialize.load(response)
-				print board
-
-				move = self.decide_move(0)
+				move = self.decide_move(board)
 				self.send_move(move[0], move[1])
 
 

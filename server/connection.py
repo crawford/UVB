@@ -49,7 +49,6 @@ class Connection(object):
 
 		#if not self.peek_buffer():
 		#wait for the response
-		r, w, e = select.select([self.socket], [], [], self.timeout)
 		self.read_socket(self.readsize)
 
 		secret = self.read_buffer()
@@ -85,11 +84,9 @@ class Connection(object):
 		self.send_message(serialize.dump(self.client_map))
 
 		# Wait for the response
-		r, w, e = select.select([self.socket], [], [], self.timeout)
 		self.read_socket(self.readsize)
 
 		move = self.read_buffer()
-		#print move
 		
 		if not move:
 			self.logger.error("Response timed out from " + self.username)
@@ -133,7 +130,7 @@ class Connection(object):
 
 	def read_socket(self, length):
 		#print "Attempting to read...",
-		r, w, e = select.select([self.socket], [], [], 0)
+		r, w, e = select.select([self.socket], [], [], self.timeout)
 		if r:
 			try:
 				#print "Ready"
@@ -144,9 +141,11 @@ class Connection(object):
 					self.buffer += data
 				else:
 					self.running = False
+					self.server.destroy_idle_connections()
 			except socket.error as error:
 				self.logger.error(error)
 				self.running = False
+				self.server.destroy_idle_connections()
 		else:
 			#print "Not Ready"
 			pass

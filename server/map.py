@@ -1,3 +1,4 @@
+from constants import Direction
 
 
 class GameMap(object):
@@ -35,7 +36,36 @@ class GameMap(object):
 		return out
 
 	def get_object_at(self, coordinates):
-		if coordinates in self.objects:
-			return self.objects[coordinates]
+		if str(coordinates) in self.objects:
+			return self.objects[str(coordinates)]
 		else:
 			return None
+
+	def next_pos_in_direction(self, (x, y), direction):
+		if direction == Direction.NORTH:
+			y -= 1
+		elif direction == Direction.NORTHEAST:
+			y -= 1
+			x += 1
+		elif direction == Direction.EAST:
+			x += 1
+		elif direction == Direction.SOUTHEAST:
+			y += 1
+			x += 1
+		elif direction == Direction.SOUTH:
+			y += 1
+		elif direction == Direction.SOUTHWEST:
+			y += 1
+			x -= 1
+		elif direction == Direction.WEST:
+			x -= 1
+		elif direction == Direction.NORTHWEST:
+			y -= 1
+			x -= 1
+		return (x, y)
+
+	def rotate_left(self, current):
+		return (int(current) + 7) % 8
+
+	def rotate_right(self, current):
+		return (int(current) + 1) % 8
