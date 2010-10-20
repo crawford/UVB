@@ -27,6 +27,7 @@ class Server(threading.Thread):
 
 	def __init__(self):
 		threading.Thread.__init__(self)
+		init_logger()
 
 		self.host = socket.gethostname()
 		self.port = 13783

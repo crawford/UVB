@@ -115,13 +115,13 @@ class Controller(object):
 		for player in self.board.players:
 			player.connection.move_join()
 			move = player.get_next_position()
-			print move
+			#print move
 			if move in nextMoves:
 				nextMoves[move].append(player)
 			else:
 				nextMoves[move] = [player]
 
-		print nextMoves
+		#print nextMoves
 
 		# check for collisions and handle them
 		for loc,lst in nextMoves.items():
@@ -143,7 +143,7 @@ class Controller(object):
 		for player in self.board.players:
 			self.board.move_object(player, player.get_next_position())
 
-		print self.board
+		#print self.board
 
 	def pause(self):
 		self.paused = True

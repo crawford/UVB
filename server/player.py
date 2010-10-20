@@ -2,6 +2,7 @@ from logger import *
 from objects import *
 from constants import *
 from snowball import *
+import time
 
 class Player(DynamicObject):
 	username = None
@@ -21,7 +22,6 @@ class Player(DynamicObject):
 	def disconnect(self):
 		self.logger.info("Disconnecting")
 		self.connection.close()
-		del self.logger
 
 	def increment_kills(self, player):
 		logger.debug(self.username + " hit " + player.username)

@@ -70,7 +70,7 @@ class GameBoard(object):
 		#if the rows are all empty, add the object at the first index
 		if(len(self.rows) == 0):
 			self.rows.insert(0, [obj])
-			self.printList()
+			#self.printList()
 			return
 
 		for iRow in xrange(len(self.rows)):
@@ -81,26 +81,26 @@ class GameBoard(object):
 					if(obj.get_x() < self.rows[iRow][iCol].get_x()):
 						#if the new object is to the left of the current object, put it before it
 						self.rows[iRow].insert(iCol, obj)
-						self.printList()
+						#self.printList()
 						return
 					elif(obj.get_x() == self.rows[iRow][iCol].get_x()):
 						raise NameError('Already an object at that position')
 
 				#if the new object isn't left of any object, then its the farthest to the right
 				self.rows[iRow].append(obj)
-				self.printList()
+				#self.printList()
 				return
 
 			#if the new object is above than the current row
 			if(obj.get_y() < self.rows[iRow][0].get_y()):
 				#create a new row before the current one and add the object
 				self.rows.insert(iRow, [obj])
-				self.printList()
+				#self.printList()
 				return
 
 		#if the new object is below everything else add it to the bottom
 		self.rows.append([obj])
-		self.printList()
+		#self.printList()
 
 	def printList(self):
 		print 'List:'
@@ -213,7 +213,7 @@ class GameBoard(object):
 		if not self.is_pos_on_board((x + radius, 0)):
 			# Edge on the right side
 			dx = self.width - x
-			top_length = sqrt(radius*radius/dx/dx)
+			top_length = int(sqrt(radius*radius/dx/dx))
 			bottom_length = top_length
 
 			# Clip the edge so we don't draw too far
@@ -230,7 +230,7 @@ class GameBoard(object):
 		if not self.is_pos_on_board((x - radius, 0)):
 			# Edge on the left side
 			dx = -x - 1
-			top_length = sqrt(radius*radius/dx/dx)
+			top_length = int(sqrt(radius*radius/dx/dx))
 			bottom_length = top_length
 
 			# Clip the edge so we don't draw too far
@@ -247,7 +247,7 @@ class GameBoard(object):
 		if not self.is_pos_on_board((0, y + radius)):
 			# Edge on the bottom side
 			dy = self.height - y
-			left_length = sqrt(radius*radius/dy/dy)
+			left_length = int(sqrt(radius*radius/dy/dy))
 			right_length = left_length
 
 			# Clip the edge so we don't draw too far
@@ -264,7 +264,7 @@ class GameBoard(object):
 		if not self.is_pos_on_board((0, y - radius)):
 			# Edge on the top side
 			dy = -y - 1
-			left_length = sqrt(radius*radius/dy/dy)
+			left_length = int(sqrt(radius*radius/dy/dy))
 			right_length = left_length
 
 			# Clip the edge so we don't draw too far

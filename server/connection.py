@@ -89,7 +89,7 @@ class Connection(object):
 		self.read_socket(self.readsize)
 
 		move = self.read_buffer()
-		print move
+		#print move
 		
 		if not move:
 			self.logger.error("Response timed out from " + self.username)
