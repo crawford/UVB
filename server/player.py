@@ -2,6 +2,7 @@ from logger import *
 from objects import *
 from constants import *
 from snowball import *
+import db
 import time
 
 class Player(DynamicObject):
@@ -25,15 +26,14 @@ class Player(DynamicObject):
 
 	def increment_kills(self, player):
 		self.logger.debug(self.username + " hit " + player.username)
-		#TODO: update db
+		db.increment_kills(self.username)
 
 	def increment_steps(self):
-		pass
-		#TODO: update db
+		db.increment_steps(self.username)
 
 	def increment_deaths(self):
 		self.logger.debug(self.username + " died")
-		#TODO: update db
+		db.increment_deaths(self.username)
 
 	def request_move(self, board):
 		self.connection.get_move(board)

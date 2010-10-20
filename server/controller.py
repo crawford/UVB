@@ -109,6 +109,7 @@ class Controller(object):
 
 		# for each player, create their visible map and ask for a move
 		for player in self.board.players:
+			player.increment_steps()
 			board = self.board.get_visible_board((player.get_x(), player.get_y()), self.maxvisibility)
 			player.request_move(board)
 

@@ -28,13 +28,13 @@ def init_logger():
 	logger.addHandler(rotHandler)
 	
 	strHandler = logging.StreamHandler()
-	strHandler.setLevel(logging.INFO)
+	strHandler.setLevel(logging.WARN)
 
 	logger.addHandler(strHandler)
 
 
 def create_logger(name):
 	logger = logging.getLogger(name)
-	logger.setLevel(logging.DEBUG)
+	logger.setLevel(logging.INFO)
 
 	return logger
