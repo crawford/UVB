@@ -141,11 +141,9 @@ class Connection(object):
 					self.buffer += data
 				else:
 					self.running = False
-					self.server.destroy_idle_connections()
 			except socket.error as error:
 				self.logger.error(error)
 				self.running = False
-				self.server.destroy_idle_connections()
 		else:
 			#print "Not Ready"
 			pass

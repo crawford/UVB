@@ -112,7 +112,7 @@ class Server(threading.Thread):
 		if player:
 			#player is already in game
 			self.logger.info("Detected " + username + " cheating (multiple instances)")
-			player.disconnect()
+			player.connection.running = False
 			connection.close()
 			#flag this user as cheating
 			return

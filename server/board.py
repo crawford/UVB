@@ -83,8 +83,8 @@ class GameBoard(object):
 						self.rows[iRow].insert(iCol, obj)
 						#self.printList()
 						return
-					elif(obj.get_x() == self.rows[iRow][iCol].get_x()):
-						raise NameError('Already an object at that position')
+					#elif(obj.get_x() == self.rows[iRow][iCol].get_x()):
+						#raise NameError('Already an object at that position')
 
 				#if the new object isn't left of any object, then its the farthest to the right
 				self.rows[iRow].append(obj)
