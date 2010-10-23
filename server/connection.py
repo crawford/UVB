@@ -23,6 +23,7 @@ class Connection(object):
 	move_thread = None
 	next_move = None
 	client_map = None
+	getting_move = None
 
 	def __init__(self, socket, hostname, server):
 		self.socket = socket
@@ -39,6 +40,7 @@ class Connection(object):
 		self.move_thread = None
 		self.next_move = (Action.NOP, Direction.NORTH)
 		self.client_map = None
+		self.getting_move = False
 
 	def thrd_auth(self):
 		#clear the buffer
@@ -90,12 +92,14 @@ class Connection(object):
 		
 		if not move:
 			self.logger.error("Response timed out from " + self.username)
+			self.getting_move = False
 			return
 
 		self.logger.info("Received move from " + self.username + ": " + move)
 
 		act,dir = move.split(':')
 		self.next_move = (int(act), int(dir))
+		self.getting_move = False
 
 	def send_message(self, message):
 		try:
@@ -108,6 +112,8 @@ class Connection(object):
 		t.start()
 
 	def get_move(self, map):
+		self.getting_move = True
+
 		self.client_map = map
 
 		# Reset the move

@@ -2,6 +2,7 @@ from logger import *
 from objects import *
 from constants import *
 from snowball import *
+from tree import *
 import db
 import time
 
@@ -24,8 +25,8 @@ class Player(DynamicObject):
 		self.logger.info("Disconnecting")
 		self.connection.close()
 
-	def increment_kills(self, player):
-		self.logger.debug(self.username + " hit " + player.username)
+	def increment_kills(self):
+		self.logger.debug(self.username + " hit another player")
 		db.increment_kills(self.username)
 
 	def increment_steps(self):
@@ -47,6 +48,15 @@ class Player(DynamicObject):
 
 	def handle_collision(self, others):
 		for obj in others:
-			if(isinstance(obj, Snowball)):
-				obj.owner.increment_kills(self)
+			if (isinstance(obj, Snowball)):
+				obj.owner.increment_kills()
 				self.increment_deaths()
+
+			if (isinstance(obj, Player)):
+				obj.increment_deaths()
+				self.increment_kills()
+
+			if (isinstance(obj, Tree)):
+				self.connection.next_move = (Action.NOP, Direction.NORTH)
+				self.increment_deaths()
+
