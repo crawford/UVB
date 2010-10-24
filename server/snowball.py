@@ -1,5 +1,5 @@
 from objects import DynamicObject
-from player import *
+import player
 
 class Snowball(DynamicObject):
 	owner = None
@@ -19,19 +19,19 @@ class Snowball(DynamicObject):
 		return old
 
 	def get_next_position(self):
-		move = self.board.next_pos_in_direction((self.get_x(), self.get_y()), self.direction)
+		move = self.board.next_pos_in_direction((self.get_x(), self.get_y()), self.direction, 2)
+
 		if(self.board.is_pos_on_board(move)):
 			return move
 		else:
 			self.kill()
 
 	def handle_collision(self, others):
-		print "entering collision"
 		for obj in others:
-			print "colliding with", obj
-			if(isinstance(obj, Player)):
-				#hurt the player
-				pass
+			if(isinstance(obj, player.Player)):
+				obj.increment_deaths()
+				self.owner.increment_kills()
 			else:
-				print "killing"
-				self.kill()
+				pass
+				
+		self.kill()

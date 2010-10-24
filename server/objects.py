@@ -1,4 +1,5 @@
-from constants import *
+from constants import Action
+from constants import Direction
 
 class GameObject(object):
 	board = None

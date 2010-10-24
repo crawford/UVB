@@ -1,6 +1,7 @@
-from logger import *
 from threading import Thread
-from constants import Action, Direction
+from constants import Action
+from constants import Direction
+import logger
 import db
 import select
 import sys

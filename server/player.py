@@ -1,8 +1,9 @@
-from logger import *
-from objects import *
-from constants import *
-from snowball import *
-from tree import *
+from objects import DynamicObject
+from constants import Direction
+from constants import Action
+from snowball import Snowball
+from tree import Tree
+import logger
 import db
 import time
 
@@ -16,7 +17,7 @@ class Player(DynamicObject):
 
 		self.username = username
 		self.connection = connection
-		self.logger = create_logger(username)
+		self.logger = logger.create_logger(username)
 
 	def __str__(self):
 		return '*'
@@ -45,6 +46,13 @@ class Player(DynamicObject):
                                                     self.connection.next_move[1])
 
 		return self.coordinates
+
+	def perform_action(self):
+		if self.connection.next_move[0] == Action.THROWSNOWBALL:
+			self.board.add_object(Snowball(self.board,
+			                               self.coordinates,
+										   self,
+										   self.connection.next_move[1]))
 
 	def handle_collision(self, others):
 		for obj in others:

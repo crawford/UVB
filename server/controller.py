@@ -1,7 +1,10 @@
-from logger import *
-from board import *
+from board import GameBoard
 from tree import Tree
+from player import Player
 from threading import Thread
+from objects import DynamicObject
+from objects import StaticObject
+import logger
 import ConfigParser
 import time
 import random
@@ -21,7 +24,7 @@ class Controller(object):
 	maxtrees = None
 
 	def __init__(self):
-		self.logger = create_logger('Controller')
+		self.logger = logger.create_logger('Controller')
 		self.load_config(CONFIG_FILE)
 		self.board = GameBoard(self.width, self.height)
 		self.running = False
@@ -95,9 +98,9 @@ class Controller(object):
 		else:
 			# close the game
 			self.logger.debug("Stopping game")
-			while len(self.board.players):
-				self.board.players[0].disconnect()
-				del self.board.players[0]
+			#while len(self.board.players):
+			#	self.board.players[0].disconnect()
+			#	del self.board.players[0]
 
 			self.board.clear()
 
@@ -105,23 +108,6 @@ class Controller(object):
 
 	def step(self):
 		nextMoves = {}
-		self.logger.debug("Step")
-
-		# populate the nextMoves list with static objects
-		for obj in self.board.staticObjects:
-			if obj.coordinates in nextMoves:
-				nextMoves[obj.coordinates].append(obj)
-			else:
-				nextMoves[obj.coordinates] = [obj]
-
-		# populate the nextMoves list with dynamic objects
-		for obj in self.board.dynamicObjects:
-			move = obj.get_next_position()
-			if move in nextMoves:
-				nextMoves[move].append(obj)
-			else:
-				nextMoves[move] = [obj]
-
 		self.logger.debug("Getting players' moves")
 
 		# for each player, create their visible map and ask for a move
@@ -139,13 +125,28 @@ class Controller(object):
 				player.connection.move_join()
 
 			move = player.get_next_position()
+			player.perform_action()
 			#print move
 			if move in nextMoves:
 				nextMoves[move].append(player)
 			else:
 				nextMoves[move] = [player]
 
-		#print nextMoves
+		# populate the nextMoves list with static objects
+		for obj in self.board.staticObjects:
+			if obj.coordinates in nextMoves:
+				nextMoves[obj.coordinates].append(obj)
+			else:
+				nextMoves[obj.coordinates] = [obj]
+
+		# populate the nextMoves list with dynamic objects
+		for obj in self.board.dynamicObjects:
+			move = obj.get_next_position()
+			if move in nextMoves:
+				nextMoves[move].append(obj)
+			else:
+				nextMoves[move] = [obj]
+
 
 		# check for collisions and handle them
 		for loc,lst in nextMoves.items():

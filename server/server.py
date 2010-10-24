@@ -1,10 +1,11 @@
 #!/usr/bin/python
 
-from controller import *
-from connection import *
-from player import *
-from logger import *
+from controller import Controller
+from connection import Connection
+from player import Player
+import logger 
 import select
+import ssl
 import socket
 import sys
 import threading
@@ -27,7 +28,7 @@ class Server(threading.Thread):
 
 	def __init__(self):
 		threading.Thread.__init__(self)
-		init_logger()
+		logger.init_logger()
 
 		self.host = socket.gethostname()
 		self.port = 13783
@@ -40,7 +41,7 @@ class Server(threading.Thread):
 		self.maxplayers = 100
 		self.controller = None
 		self.running = False
-		self.logger = create_logger('Server')
+		self.logger = logger.create_logger('Server')
 
 	def open_server(self):
 		try:
@@ -147,9 +148,10 @@ class Server(threading.Thread):
 		i = 0
 		while i < len(self.players):
 			if not self.players[i].connection.is_running():
-				self.players[i].disconnect()
 				self.controller.remove_player(self.players[i])
+				self.players[i].disconnect()
 				self.logger.info("Removing idle connection to " + str(self.players[i].username))
+
 				del self.players[i]
 			else:
 				i = i+1

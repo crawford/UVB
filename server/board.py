@@ -1,7 +1,9 @@
-from constants import *
-from player import *
-from objects import *
-from map import *
+from constants import Action
+from constants import Direction
+from player import Player
+from objects import DynamicObject
+from objects import StaticObject
+from map import GameMap
 from math import sqrt
 
 class GameBoard(object):
@@ -139,27 +141,27 @@ class GameBoard(object):
 
 		return True
 
-	def next_pos_in_direction(self, (x, y), direction):
+	def next_pos_in_direction(self, (x, y), direction, amount=1):
 		if direction == Direction.NORTH:
-			y -= 1
+			y -= amount
 		elif direction == Direction.NORTHEAST:
-			y -= 1
-			x += 1
+			y -= amount
+			x += amount
 		elif direction == Direction.EAST:
-			x += 1
+			x += amount
 		elif direction == Direction.SOUTHEAST:
-			y += 1
-			x += 1
+			y += amount
+			x += amount
 		elif direction == Direction.SOUTH:
-			y += 1
+			y += amount
 		elif direction == Direction.SOUTHWEST:
-			y += 1
-			x -= 1
+			y += amount
+			x -= amount
 		elif direction == Direction.WEST:
-			x -= 1
+			x -= amount
 		elif direction == Direction.NORTHWEST:
-			y -= 1
-			x -= 1
+			y -= amount
+			x -= amount
 		return (x, y)
 
 	def is_pos_on_board(self, (x, y)):
