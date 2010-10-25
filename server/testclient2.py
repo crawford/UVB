@@ -9,7 +9,14 @@ def dummy(board):
 
 	print board
 
-	return (Action.THROWSNOWBALL, Direction.SOUTHEAST)
+	obj = 1
+	while obj:
+		next_pos = board.next_pos_in_direction((0, 0), last_dir)
+		obj = board.get_object_at(next_pos)
+		if obj:
+			last_dir = random.randint(0, 7)
+
+	return (Action.MOVE, last_dir)
 
 
 
