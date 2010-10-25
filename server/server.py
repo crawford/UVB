@@ -11,7 +11,8 @@ import sys
 import threading
 import ConfigParser
 
-PROMPT = "uvb> "
+PROMPT = 'uvb> '
+CONFIG_FILE = 'config'
 
 class Server(threading.Thread):
 	host = None
@@ -28,7 +29,7 @@ class Server(threading.Thread):
 
 	def __init__(self):
 		threading.Thread.__init__(self)
-		logger.init_logger()
+		logger.init_logger(CONFIG_FILE)
 
 		self.host = socket.gethostname()
 		self.port = 13783
@@ -93,7 +94,7 @@ class Server(threading.Thread):
 	def load_config(self):
 		self.logger.info("Loading server configuration...")
 		config = ConfigParser.ConfigParser()
-		config.read("config")
+		config.read(CONFIG_FILE)
 
 		self.maxplayers = int(config.get("Server", "MaxPlayers"))
 		self.port = int(config.get("Server", "Port"))

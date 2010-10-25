@@ -1,5 +1,6 @@
 import logging
 import logging.handlers
+import ConfigParser
 
 '''
 Instructions:
@@ -16,8 +17,11 @@ Instructions:
 	The minimum logging levels for file logging and screen logging are below
 '''
 
-def init_logger():
-	LOG_FILENAME = 'uvb.log'
+def init_logger(config_file):
+	config = ConfigParser.ConfigParser()
+	config.read(config_file)
+
+	LOG_FILENAME = config.get('Server', 'Log')
 
 	logger = logging.getLogger('')
 	rotHandler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=1048576, backupCount=5)

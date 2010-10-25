@@ -96,7 +96,7 @@ class Connection(object):
 			self.getting_move = False
 			return
 
-		self.logger.info("Received move from " + self.username + ": " + move)
+		self.logger.debug("Received move from " + self.username + ": " + move)
 
 		act,dir = move.split(':')
 		self.next_move = (int(act), int(dir))

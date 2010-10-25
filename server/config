@@ -8,19 +8,25 @@ Port: 13783
 #The number of possible backlogged connections
 Backlog: 5
 
+#The path to the log file
+Log: /var/www/uvb.log
+
+#The path to the snapshot file
+Snapshot: /var/www/snapshot
+
 
 [GameBoard]
 #The width of the gameboard
-Width: 10
+Width: 100
 
 #The height of the gameboard
-Height: 10
+Height: 100
 
 #Minimum number of trees
-MinTrees: 0.01
+MinTrees: 0.10
 
 #Maximum number of trees
-MaxTrees: 0.10
+MaxTrees: 0.20
 
 
 [Player]

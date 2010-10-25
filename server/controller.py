@@ -22,6 +22,8 @@ class Controller(object):
 	maxvisibility = None
 	mintrees = None
 	maxtrees = None
+	visibility = None
+	snapshot_file = None
 
 	def __init__(self):
 		self.logger = logger.create_logger('Controller')
@@ -29,6 +31,7 @@ class Controller(object):
 		self.board = GameBoard(self.width, self.height)
 		self.running = False
 		self.paused = False
+		self.visibility = random.randint(self.minvisibility, self.maxvisibility)
 		
 		# Put some trees on the board
 		num_trees = random.randint(self.mintrees*self.width*self.height,
@@ -45,6 +48,8 @@ class Controller(object):
 		self.logger.info("Loading game configuration...")
 		config = ConfigParser.ConfigParser()
 		config.read(filename)
+
+		self.snapshot_file = config.get("Server", "Snapshot")
 
 		self.width = int(config.get("GameBoard", "Width"))
 		self.height = int(config.get("GameBoard", "Height"))
@@ -88,10 +93,18 @@ class Controller(object):
 			self.logger.debug("Starting game")
 
 		self.running = True
+		snapshot_counter = 0
 
 		while self.running and not self.paused and len(self.board.players) > 0 :
 			self.step()
 			time.sleep(1)
+			
+			#snapshot_counter += 1
+			if snapshot_counter == 10:
+				snapshot_counter = 0
+				file = open(self.snapshot_file, 'w')
+				file.write(str(self.board))
+				file.close()
 
 		if self.running:
 			self.logger.debug("Pausing game")
@@ -116,7 +129,7 @@ class Controller(object):
 				continue
 
 			player.increment_steps()
-			board = self.board.get_visible_board((player.get_x(), player.get_y()), self.maxvisibility)
+			board = self.board.get_visible_board((player.get_x(), player.get_y()), self.visibility)
 			player.request_move(board)
 
 		# wait for all of the players to respond (or timeout)

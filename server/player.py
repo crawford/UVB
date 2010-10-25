@@ -2,6 +2,7 @@ from objects import DynamicObject
 from constants import Direction
 from constants import Action
 from snowball import Snowball
+from snowman import Snowman
 from tree import Tree
 import logger
 import db
@@ -11,6 +12,7 @@ class Player(DynamicObject):
 	username = None
 	connection = None
 	logger = None
+	snowballs = None
 
 	def __init__(self, username, connection, board, position):
 		super(Player, self).__init__(board, position)
@@ -18,6 +20,7 @@ class Player(DynamicObject):
 		self.username = username
 		self.connection = connection
 		self.logger = logger.create_logger(username)
+		self.snowballs = 0
 
 	def __str__(self):
 		return '*'
@@ -49,10 +52,20 @@ class Player(DynamicObject):
 
 	def perform_action(self):
 		if self.connection.next_move[0] == Action.THROWSNOWBALL:
-			self.board.add_object(Snowball(self.board,
-			                               self.coordinates,
-										   self,
-										   self.connection.next_move[1]))
+			if self.snowballs > 0:
+				self.board.add_object(Snowball(self.board,
+				                               self.coordinates,
+				                               self,
+				                               self.connection.next_move[1]))
+				self.snowballs -= 1
+		elif self.connection.next_move[0] == Action.MAKESNOWBALL:
+			self.snowballs += 1
+		elif self.connection.next_move[0] == Action.SNOWMAN:
+			pos = self.board.next_pos_in_direction(self.coordinates,
+			                                       self.connection.next_move[1])
+			# make sure the space is empty before we place a snowman
+			if not self.board.get_object(pos):
+				self.board.add_object(Snowman(self.board, pos, self))
 
 	def handle_collision(self, others):
 		for obj in others:
