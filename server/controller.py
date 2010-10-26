@@ -1,6 +1,7 @@
 from board import GameBoard
 from tree import Tree
 from player import Player
+import snowball
 from threading import Thread
 from objects import DynamicObject
 from objects import StaticObject
@@ -57,6 +58,9 @@ class Controller(object):
 		self.maxvisibility = int(config.get("Player", "MaxVisibility"))
 		self.mintrees = float(config.get("GameBoard", "MinTrees"))
 		self.maxtrees = float(config.get("GameBoard", "MaxTrees"))
+
+		self.snowball_speed = int(config.get("Snowball", "Speed"))
+		snowball.SPEED = self.snowball_speed
 
 		self.logger.info("Min Visibility: " + str(self.minvisibility))
 		self.logger.info("Max Visibility: " + str(self.maxvisibility))
@@ -129,7 +133,7 @@ class Controller(object):
 				continue
 
 			player.increment_steps()
-			board = self.board.get_visible_board((player.get_x(), player.get_y()), self.visibility)
+			board = self.board.get_visible_board(player.coordinates, self.visibility)
 			player.request_move(board)
 
 		# wait for all of the players to respond (or timeout)

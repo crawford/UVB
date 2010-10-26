@@ -1,9 +1,12 @@
 from objects import DynamicObject
 import player
 
+SPEED = 1
+
 class Snowball(DynamicObject):
 	owner = None
 	direction = None
+	speed = None
 
 	def __init__(self, board, coordinates, owner, direction):
 		super(Snowball, self).__init__(board, coordinates)
@@ -19,12 +22,21 @@ class Snowball(DynamicObject):
 		return old
 
 	def get_next_position(self):
-		move = self.board.next_pos_in_direction((self.get_x(), self.get_y()), self.direction, 2)
+		global SPEED
 
-		if(self.board.is_pos_on_board(move)):
-			return move
-		else:
-			self.kill()
+		next_pos = self.coordinates
+
+		for i in range(0, SPEED):
+			next_pos = self.board.next_pos_in_direction(next_pos, self.direction, 1)
+			
+			if not self.board.is_pos_on_board(next_pos):
+				self.kill()
+				return
+
+			if self.board.get_object(next_pos):
+				break
+
+		return next_pos
 
 	def handle_collision(self, others):
 		for obj in others:
