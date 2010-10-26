@@ -24,27 +24,54 @@ class GameBoard(object):
 
 	# convert the game board to a string
 	def __str__(self):
-		#TODO: could be more efficient, probably will be removed
+		row_index = 0
+
 		out = '+' + '+'.rjust(self.width + 1, '-') + '\n'
-		for y in xrange(self.height):
+		for row in self.rows:
+			for row_index in xrange(row_index, row[0].get_y()):
+				out += '|' + '|'.rjust(self.width + 1, ' ') + '\n'
+
 			out += '|'
-			for x in xrange(self.width):
-				obj = self.get_object((x, y))
-				if(obj == None):
+
+			col_index = 0
+			for obj in row:
+				for col_index in xrange(col_index, obj.get_x()):
 					out += ' '
-				else:
-					out += obj.__str__()
+
+				out += str(obj)
+				col_index = obj.get_x() + 1
+				
+			for col_index in xrange(col_index, self.width):
+				out += ' '
+
 			out += '|\n'
+			row_index = row[0].get_y()
+
+		for row_index in xrange(row_index, self.height):
+			out += '|' + '|'.rjust(self.width + 1, ' ') + '\n'
+
 		out += '+' + '+'.rjust(self.width + 1, '-')
+		
 		return out
+
+	
 
 	# get object at (x,y) coordinate
 	def get_object(self, (x, y)):
-		#TODO: more efficient
 		for row in self.rows:
+			if row[0].get_y() < y:
+				continue
+			elif row[0].get_y() > y:
+				break
+
 			for obj in row:
-				if(obj.get_x() == x and obj.get_y() == y):
-					return obj
+				if obj.get_x() < x:
+					continue
+				elif obj.get_x() > x:
+					break
+
+				return obj
+		
 		return None
 
 	def add_object(self, obj):

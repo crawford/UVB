@@ -103,7 +103,7 @@ class Controller(object):
 			self.step()
 			time.sleep(1)
 			
-			#snapshot_counter += 1
+			snapshot_counter += 1
 			if snapshot_counter == 10:
 				snapshot_counter = 0
 				file = open(self.snapshot_file, 'w')
