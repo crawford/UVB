@@ -21,7 +21,7 @@ class Client(Thread):
 		Thread.__init__(self)
 		self.SERVER = 'uvb.csh.rit.edu'
 		self.PORT = 13783
-		self.KEY = 'P6X6qeCysSj4xx2TeRC0OtJ46bWOsZDi'
+		self.KEY = ''
 		self.sock = None
 		self.connected = False
 		self.decide_move = None
