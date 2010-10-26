@@ -45,7 +45,7 @@ class GameBoard(object):
 				out += ' '
 
 			out += '|\n'
-			row_index = row[0].get_y()
+			row_index = row[0].get_y() + 1
 
 		for row_index in xrange(row_index, self.height):
 			out += '|' + '|'.rjust(self.width + 1, ' ') + '\n'
