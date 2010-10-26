@@ -40,7 +40,6 @@ class Client(Thread):
 		if inready:
 			# clear the buffer (should be 'key')
 			response = self.sock.recv(100)
-			print response
 		else:
 			self.connected = False
 			return False
@@ -54,13 +53,10 @@ class Client(Thread):
 
 		if inready:
 			response = self.sock.recv(1)
-			print response
 			if response == '1':
-				print 'Successful login'
 				self.connected = True
 				return True
 			
-		print 'Login failed'
 		self.connected = False
 		return False
 
