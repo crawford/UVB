@@ -23,8 +23,7 @@ last_dir = Direction.SOUTH
 
 c = Client()
 
-#c.KEY = <key>
-c.KEY = 'P6X6qeCysSj4xx2TeRC0OTJ46bWOsZDi'
+c.KEY = <key>
 c.decide_move = dummy
 c.connect()
 c.start()
