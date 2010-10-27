@@ -52,8 +52,8 @@ class Client(Thread):
 		inready, outready, exready = select.select([self.sock], [], [], 5)
 
 		if inready:
-			response = self.sock.recv(1)
-			if response == '1':
+			response = self.sock.recv(2)
+			if response == '1\n':
 				self.connected = True
 				return True
 			
@@ -72,13 +72,13 @@ class Client(Thread):
 			inready, outready, exready = select.select([self.sock], [], [], 5)
 
 			if inready:
-				response = self.sock.recv(4)
+				response = self.sock.recv(5)
 
 				# Check for a closed connection
 				if response == '':
 					return
 
-				if response != 'move':
+				if response != 'move\n':
 					continue
 
 				response = self.sock.recv(10000)

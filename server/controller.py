@@ -68,7 +68,14 @@ class Controller(object):
 		self.logger.info("Game Width: " + str(self.width))
 
 	def create_player(self, username, connection):
-		player = Player(username, connection, self.board, (0,0))
+		x = random.randint(0, self.width - 1)
+		y = random.randint(0, self.height - 1)
+
+		while self.board.get_object((x, y)):
+			x = random.randint(0, self.width - 1)
+			y = random.randint(0, self.height - 1)
+
+		player = Player(username, connection, self.board, (x,y))
 		return player
 
 	def add_player(self, newPlayer):

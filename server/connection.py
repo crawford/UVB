@@ -104,7 +104,7 @@ class Connection(object):
 
 	def send_message(self, message):
 		try:
-			self.socket.send(message)
+			self.socket.send(message + '\n')
 		except:
 			self.running = False
 
@@ -145,6 +145,7 @@ class Connection(object):
 				#print "Read", data
 				
 				if data:
+					data = data.replace('\n', '')
 					self.buffer += data
 				else:
 					self.running = False

@@ -23,10 +23,10 @@ Width: 100
 Height: 100
 
 #Minimum number of trees
-MinTrees: 0.10
+MinTrees: 0.05
 
 #Maximum number of trees
-MaxTrees: 0.20
+MaxTrees: 0.10
 
 
 [Player]
