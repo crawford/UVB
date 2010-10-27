@@ -47,8 +47,11 @@ include_once('nav.php');
 			<li>Program all of your player logic</li>
 			<li>Connect to the game server</li>
 		</ul>
+		<h2>Objective</h2>
+		The objective is to avoid colliding with other players, their snowballs, trees, snowmen, and the edge of the map. At the same time, you want to try to hit as many people as you can with your snowballs.
 		<h2>Rules</h2>
 		<ul>
+			<li>Game Step - Every player and object on the game board can move once per game step. The game makes one step once every player has submitted their move. Everyone moves at the same time during the game step.</li>
 			<li>You only get one move per game step</li>
 			<ul>
 				<li>NOP - Do nothing</li>
@@ -66,6 +69,14 @@ include_once('nav.php');
 				<li>Snowman - the snowman will be destroyed and you will get one death</li>
 				<li>Another player - you both will get one death and one kill</li>
 			</ul>
+			<li>Objects</li>
+			<ul>
+				<li>Player - Must respond with a move within the time alloted (currently 3 seconds).  When a player dies, he keeps all of snowballs and stays where he is at (only the death counter is incremented)</li>
+				<li>Tree - Static object. Cannot be removed</li>
+				<li>Snowball - Thrown by players. Will fly in a straight line until it hits an object or the edge of the map. You can carry as many of these as you want. These take one game step to make.</li>
+				<li>Snowman - Built by players. Can be destroyed by a player or a snowball. Cannot be built on top of another object (including other players). These take one game step to make.</li>
+			</ul>
+			
 		</ul>
 		</body>
 		</html>
