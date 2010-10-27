@@ -88,6 +88,8 @@ class Server(threading.Thread):
 				s.anon_conns.append(p)
 			except socket.timeout:
 				pass
+			except Exception as e:
+				self.logger.warning(e)
 
 			self.destroy_idle_connections()
 
