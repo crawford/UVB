@@ -4,10 +4,12 @@ from constants import Direction
 class GameObject(object):
 	board = None
 	coordinates = None
+	killed = None
 
 	def __init__(self, board, coordinates):
 		self.board = board
 		self.coordinates = coordinates
+		self.killed = False
 
 	def serialize(self):
 		return {'type': self.__class__.__name__, 'coordinates':self.coordinates}
@@ -19,8 +21,9 @@ class GameObject(object):
 		return self.coordinates[1]
 
 	def kill(self):
-		self.board.remove_object(self)
-		del self
+		if not self.killed:
+			self.killed = True
+			self.board.remove_object(self)
 
 
 class DynamicObject(GameObject):
