@@ -108,7 +108,7 @@ class Controller(object):
 
 		while self.running and not self.paused and len(self.board.players) > 0 :
 			self.step()
-			time.sleep(1)
+			time.sleep(0.5)
 			
 			snapshot_counter += 1
 			if snapshot_counter == 10:
@@ -148,8 +148,11 @@ class Controller(object):
 			if player.connection.getting_move:
 				player.connection.move_join()
 
-			move = player.get_next_position()
-			player.perform_action()
+			move = player.get_next_position(nextMoves)
+			try:
+				player.perform_action()
+			except Exception as e:
+				self.logger.info(e)
 			#print move
 			if move in nextMoves:
 				nextMoves[move].append(player)
@@ -165,7 +168,7 @@ class Controller(object):
 
 		# populate the nextMoves list with dynamic objects
 		for obj in self.board.dynamicObjects:
-			move = obj.get_next_position()
+			move = obj.get_next_position(nextMoves)
 			if move in nextMoves:
 				nextMoves[move].append(obj)
 			else:
@@ -188,9 +191,12 @@ class Controller(object):
 		# apply all of the moves to the objects
 		self.logger.debug("Applying moves")
 		for obj in self.board.dynamicObjects:
-			self.board.move_object(obj, obj.get_next_position())
+			try:
+				self.board.move_object(obj, obj.get_next_position(nextMoves))
+			except Exception as e:
+				self.logger.info(e)
 		for player in self.board.players:
-			if not self.board.move_object(player, player.get_next_position()):
+			if not self.board.move_object(player, player.get_next_position(nextMoves)):
 				# if the player could not move (moved off game board)
 				player.increment_deaths()
 

@@ -84,7 +84,7 @@ class Connection(object):
 		self.send_message('move')
 		
 		# Send the map to the player
-		self.send_message(serialize.dump(self.client_map))
+		self.send_message(serialize.dump(self.client_map).replace('0.0', '0'))
 
 		# Wait for the response
 		self.read_socket(self.readsize)

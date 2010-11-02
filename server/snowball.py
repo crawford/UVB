@@ -21,7 +21,7 @@ class Snowball(DynamicObject):
 		old['direction'] = self.direction
 		return old
 
-	def get_next_position(self):
+	def get_next_position(self, next_moves):
 		global SPEED
 
 		next_pos = self.coordinates
@@ -31,9 +31,10 @@ class Snowball(DynamicObject):
 			
 			if not self.board.is_pos_on_board(next_pos):
 				self.kill()
-				return
+				break
 
-			if self.board.get_object(next_pos):
+			#if self.board.get_object(next_pos):
+			if next_pos in next_moves:
 				break
 
 		return next_pos

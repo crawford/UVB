@@ -223,7 +223,7 @@ class GameBoard(object):
 			if ry == 0:
 				row_width = radius
 			else:
-				row_width = sqrt(radius*radius - ry*ry)
+				row_width = int(round(sqrt(radius*radius - ry*ry)))
 
 			# Loop through the valid cols in the current row
 			dx = x - row_width

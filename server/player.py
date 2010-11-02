@@ -43,7 +43,7 @@ class Player(DynamicObject):
 	def request_move(self, board):
 		self.connection.get_move(board)
 
-	def get_next_position(self):
+	def get_next_position(self, next_moves):
 		if self.connection.next_move[0] == Action.MOVE:
 			return self.board.next_pos_in_direction(self.coordinates,
                                                     self.connection.next_move[1])

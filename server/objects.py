@@ -27,7 +27,7 @@ class DynamicObject(GameObject):
 	def __init__(self, board, coordinates):
 		super(DynamicObject, self).__init__(board, coordinates)
 
-	def get_next_position(self):
+	def get_next_position(self, next_moves):
 		pass
 
 	def handle_collision(self, others):
